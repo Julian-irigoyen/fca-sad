@@ -1,3 +1,16 @@
+<?php
+session_start();
+// Database connection
+$db_host = 'localhost';
+$db_user = 'laticsfc_admindocentes';
+$db_pass = 'Laticsfcauach2025*';
+$db_name = 'laticsfc_bdfca';
+
+$conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
+if ($conn->connect_error) {
+    die("Database connection failed: " . $conn->connect_error);
+}
+?>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -140,13 +153,56 @@
         Gestione la información y permisos de los usuarios registrados.
       </p>
       <div class="card" aria-label="Lista de Usuarios">
-        <h3>Lista de Usuarios</h3>
+        <h3>Lista de Docentes</h3>
         <div class="table-search-container">
-          <input type="text" id="user-search" placeholder="Buscar usuario por nombre, correo, RFC...">
+          <input type="text" id="user-search" placeholder="Buscar docente por nombre, correo, RFC...">
           <button type="button" id="search-btn"><i class="material-icons">search</i> Buscar</button>
         </div>
         <div class="table-container">
-          <div id="usuarios"></div>
+          <?php
+          // Query to get all docentes
+          $query = "SELECT * FROM docentes ORDER BY apellido_paterno, apellido_materno, nombre";
+          $result = $conn->query($query);
+
+          if ($result) {
+              echo '<table class="data-table">
+                      <thead>
+                          <tr>
+                              <th>RFC</th>
+                              <th>Nombre</th>
+                              <th>Apellido Paterno</th>
+                              <th>Apellido Materno</th>
+                              <th>Email</th>
+                              <th>Teléfono</th>
+                              <th>Acciones</th>
+                          </tr>
+                      </thead>
+                      <tbody>';
+              
+              while ($row = $result->fetch_assoc()) {
+                  echo '<tr>
+                          <td>'.htmlspecialchars($row['rfc']).'</td>
+                          <td>'.htmlspecialchars($row['nombre']).'</td>
+                          <td>'.htmlspecialchars($row['apellido_paterno']).'</td>
+                          <td>'.htmlspecialchars($row['apellido_materno']).'</td>
+                          <td>'.htmlspecialchars($row['email']).'</td>
+                          <td>'.htmlspecialchars($row['telefono']).'</td>
+                          <td>
+                              <button class="action-btn edit" data-id="'.htmlspecialchars($row['rfc']).'">
+                                  <i class="material-icons">edit</i>
+                              </button>
+                              <button class="action-btn delete" data-id="'.htmlspecialchars($row['rfc']).'">
+                                  <i class="material-icons">delete</i>
+                              </button>
+                          </td>
+                      </tr>';
+              }
+              
+              echo '</tbody></table>';
+          } else {
+              echo '<p class="error-message">Error al cargar los docentes: ' . $conn->error . '</p>';
+          }
+          ?>
         </div>
       </div>
     </section>

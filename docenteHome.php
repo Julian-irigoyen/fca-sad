@@ -132,7 +132,7 @@
       </div>
     </section>
     
-    <!-- Sección Usuarios -->
+    <!-- Sección Usuarios PENDIENTE DE BORRAR -->
     <section id="usuarios">
       <h2>Administrar Usuarios</h2>
       <p>
