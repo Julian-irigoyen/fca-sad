@@ -1,3 +1,17 @@
+<?php
+session_start();
+// Database connection
+$db_host = 'localhost';
+$db_user = 'laticsfc_admindocentes';
+$db_pass = 'Laticsfcauach2025*';
+$db_name = 'laticsfc_bdfca';
+
+$conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
+if ($conn->connect_error) {
+    die("Database connection failed: " . $conn->connect_error);
+}
+?>
+
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -139,13 +153,75 @@
       <p>
         Gestione la información y permisos de los usuarios registrados.
       </p>
-      <div class="card" aria-label="Lista de Usuarios">
-        <h3>Lista de Usuarios</h3>
+      <div class="card" aria-label="Lista de Docentes">
+        <h3>Lista de Docentes</h3>
         <div class="table-search-container">
           <input type="text" id="user-search" placeholder="Buscar usuario por nombre, correo, RFC...">
           <button type="button" id="search-btn"><i class="material-icons">search</i> Buscar</button>
         </div>
         <div class="table-container">
+        <?php
+          // Query to get all docentes with all requested fields
+          $query = "SELECT id_empleado, nombre, sexo, fecha_nacimiento, correo, telefono, rfc, curp, 
+                    tipo_contratacion, tipo_plaza, fecha_ingreso, id_facultad 
+                    FROM docentes 
+                    ORDER BY id_empleado";
+          $result = $conn->query($query);
+
+          if ($result) {
+              echo '<table class="data-table">
+                      <thead>
+                          <tr>
+                              <th>ID Empleado</th>
+                              <th>Nombre</th>
+                              <th>Sexo</th>
+                              <th>Fecha Nacimiento</th>
+                              <th>Correo</th>
+                              <th>Teléfono</th>
+                              <th>RFC</th>
+                              <th>CURP</th>
+                              <th>Tipo Contratación</th>
+                              <th>Tipo Plaza</th>
+                              <th>Fecha Ingreso</th>
+                              <th>ID Facultad</th>
+                              <th>Editar</th>
+                              <th>Eliminar</th>
+                          </tr>
+                      </thead>
+                      <tbody>';
+
+              while ($row = $result->fetch_assoc()) {
+                  echo '<tr>
+                          <td>'.htmlspecialchars($row['id_empleado']).'</td>
+                          <td>'.htmlspecialchars($row['nombre']).'</td>
+                          <td>'.htmlspecialchars($row['sexo']).'</td>
+                          <td>'.htmlspecialchars($row['fecha_nacimiento']).'</td>
+                          <td>'.htmlspecialchars($row['correo']).'</td>
+                          <td>'.htmlspecialchars($row['telefono']).'</td>
+                          <td>'.htmlspecialchars($row['rfc']).'</td>
+                          <td>'.htmlspecialchars($row['curp']).'</td>
+                          <td>'.htmlspecialchars($row['tipo_contratacion']).'</td>
+                          <td>'.htmlspecialchars($row['tipo_plaza']).'</td>
+                          <td>'.htmlspecialchars($row['fecha_ingreso']).'</td>
+                          <td>'.htmlspecialchars($row['id_facultad']).'</td>
+                          <td>
+                              <button class="action-btn edit" data-id="'.htmlspecialchars($row['id_empleado']).'">
+                                  Editar
+                              </button>
+                          </td>
+                          <td>
+                              <button class="action-btn delete" data-id="'.htmlspecialchars($row['id_empleado']).'">
+                                  Eliminar
+                              </button>
+                          </td>
+                      </tr>';
+              }
+
+              echo '</tbody></table>';
+          } else {
+              echo '<p class="error-message">Error al cargar los docentes: ' . $conn->error . '</p>';
+          }
+          ?> 
           <div id="usuarios">
           </div>
         </div>

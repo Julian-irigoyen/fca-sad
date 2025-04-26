@@ -132,24 +132,6 @@
       </div>
     </section>
     
-    <!-- Sección Usuarios -->
-    <section id="usuarios">
-      <h2>Administrar Usuarios</h2>
-      <p>
-        Gestione la información y permisos de los usuarios registrados.
-      </p>
-      <div class="card" aria-label="Lista de Usuarios">
-        <h3>Lista de Usuarios</h3>
-        <div class="table-search-container">
-          <input type="text" id="user-search" placeholder="Buscar usuario por nombre, correo, RFC...">
-          <button type="button" id="search-btn"><i class="material-icons">search</i> Buscar</button>
-        </div>
-        <div class="table-container">
-          <div id="usuarios"></div>
-        </div>
-      </div>
-    </section>
-    
     <!-- Sección Cumpleaños -->
     <section id="cumpleanos">
       <h2>Próximos Cumpleaños</h2>
