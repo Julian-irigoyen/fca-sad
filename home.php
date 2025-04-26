@@ -32,6 +32,7 @@
       <ul>
         <li><a href="#dashboard" class="active"><i class="material-icons">dashboard</i><span>Dashboard</span></a></li>
         <li><a href="#usuarios"><i class="material-icons">people</i><span>Usuarios</span></a></li>
+        <li><a href="#avisos"><i class="material-icons">email</i><span>Envio de Avisos</span></a></li>
         <li><a href="#cumpleanos"><i class="material-icons">cake</i><span>Cumpleaños</span></a></li>
         <li><a href="#configuracion"><i class="material-icons">settings</i><span>Configuración</span></a></li>
         <li><a href="#ayuda"><i class="material-icons">help</i><span>Ayuda</span></a></li>
@@ -150,7 +151,34 @@
         </div>
       </div>
     </section>
-    
+
+    <!-- Sección Avisos -->
+<section id="avisos">
+  <h2>Envio de Avisos</h2>
+  <p>
+    Utiliza este formulario para enviar avisos importantes a los docentes.
+  </p>
+  <div class="card" aria-label="Formulario de Avisos">
+    <h3>Formulario de Envío</h3>
+    <form action="enviar.php" method="POST">
+      <div class="form-group">
+        <label for="nombre">Nombre del remitente:</label>
+        <input type="text" id="nombre" name="nombre" placeholder="Ej. Coordinación FCA" required>
+      </div>
+      <div class="form-group">
+        <label for="correos">Correos de los docentes:</label>
+        <input type="text" id="correos" name="correos" placeholder="Separar con comas" required>
+        <small>Ej: docente1@fca.edu.mx, docente2@fca.edu.mx</small>
+      </div>
+      <div class="form-group">
+        <label for="mensaje">Mensaje del aviso:</label>
+        <textarea id="mensaje" name="mensaje" rows="6" placeholder="Escribe aquí el contenido del aviso..." required></textarea>
+      </div>
+      <button type="submit" class="btn btn-success">Enviar Aviso</button>
+    </form>
+  </div>
+</section>
+
     <!-- Sección Cumpleaños -->
     <section id="cumpleanos">
       <h2>Próximos Cumpleaños</h2>
