@@ -11,6 +11,7 @@ if ($conn->connect_error) {
     die("Database connection failed: " . $conn->connect_error);
 }
 ?>
+
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -45,6 +46,7 @@ if ($conn->connect_error) {
       <ul>
         <li><a href="#dashboard" class="active"><i class="material-icons">dashboard</i><span>Dashboard</span></a></li>
         <li><a href="#usuarios"><i class="material-icons">people</i><span>Usuarios</span></a></li>
+        <li><a href="#avisos"><i class="material-icons">mail</i><span>Avisos</span></a></li>
         <li><a href="#cumpleanos"><i class="material-icons">cake</i><span>Cumpleaños</span></a></li>
         <li><a href="#configuracion"><i class="material-icons">settings</i><span>Configuración</span></a></li>
         <li><a href="#ayuda"><i class="material-icons">help</i><span>Ayuda</span></a></li>
@@ -152,14 +154,14 @@ if ($conn->connect_error) {
       <p>
         Gestione la información y permisos de los usuarios registrados.
       </p>
-      <div class="card" aria-label="Lista de Usuarios">
+      <div class="card" aria-label="Lista de Docentes">
         <h3>Lista de Docentes</h3>
         <div class="table-search-container">
-          <input type="text" id="user-search" placeholder="Buscar docente por nombre, RFC, CURP...">
+          <input type="text" id="user-search" placeholder="Buscar usuario por nombre, correo, RFC...">
           <button type="button" id="search-btn"><i class="material-icons">search</i> Buscar</button>
         </div>
         <div class="table-container">
-          <?php
+        <?php
           // Query to get all docentes with all requested fields
           $query = "SELECT id_empleado, nombre, sexo, fecha_nacimiento, correo, telefono, rfc, curp, 
                     tipo_contratacion, tipo_plaza, fecha_ingreso, id_facultad 
@@ -188,7 +190,7 @@ if ($conn->connect_error) {
                           </tr>
                       </thead>
                       <tbody>';
-              
+
               while ($row = $result->fetch_assoc()) {
                   echo '<tr>
                           <td>'.htmlspecialchars($row['id_empleado']).'</td>
@@ -215,16 +217,49 @@ if ($conn->connect_error) {
                           </td>
                       </tr>';
               }
-              
+
               echo '</tbody></table>';
           } else {
               echo '<p class="error-message">Error al cargar los docentes: ' . $conn->error . '</p>';
           }
           ?> 
+          <div id="usuarios">
+          </div>
         </div>
       </div>
     </section>
     
+
+    <!-- Sección envio de Correos/Avisos -->
+    <section id="avisos">
+      <div class="container mt-4">
+        <div class="card">
+          <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Enviar Aviso a Docentes</h4>
+          </div>
+          <div class="card-body">
+            <form action="enviar.php" method="POST">
+              <div class="mb-3">
+                <label for="nombre" class="form-label">Nombre del remitente:</label>
+                <input type="text" class="form-control" name="nombre" id="nombre" placeholder="Ej. Coordinación FCA" required>
+              </div>
+              <div class="mb-3">
+                <label for="correos" class="form-label">Correos de los docentes:</label>
+                <input type="text" class="form-control" name="correos" id="correos" placeholder="Separar con comas" required>
+                <div class="form-text">Ej: docente1@fca.edu.mx, docente2@fca.edu.mx</div>
+              </div>
+              <div class="mb-3">
+                <label for="mensaje" class="form-label">Mensaje del aviso:</label>
+                <textarea class="form-control" name="mensaje" id="mensaje" rows="6" placeholder="Escribe aquí el contenido del aviso..." required></textarea>
+              </div>
+              <button type="submit" class="btn btn-success w-100">Enviar Aviso</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
     <!-- Sección Cumpleaños -->
     <section id="cumpleanos">
       <h2>Próximos Cumpleaños</h2>

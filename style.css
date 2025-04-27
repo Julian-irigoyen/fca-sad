@@ -771,7 +771,7 @@ header.collapsed ~ .top-header {
     height: 300px;
     overflow: visible;
   }
-}
+
 
 /* Data Table Styles */
 .data-table {
@@ -896,13 +896,14 @@ header.collapsed ~ .top-header {
         overflow-x: auto;
         white-space: nowrap;
     }
-    
+
     .table-search-container {
         flex-direction: column;
     }
-    
+
     .table-search-container button {
         width: 100%;
         justify-content: center;
     }
+}
 }
