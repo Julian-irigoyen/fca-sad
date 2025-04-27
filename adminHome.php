@@ -46,6 +46,7 @@ if ($conn->connect_error) {
       <ul>
         <li><a href="#dashboard" class="active"><i class="material-icons">dashboard</i><span>Dashboard</span></a></li>
         <li><a href="#usuarios"><i class="material-icons">people</i><span>Usuarios</span></a></li>
+        <li><a href="#avisos"><i class="material-icons">mail</i><span>Avisos</span></a></li>
         <li><a href="#cumpleanos"><i class="material-icons">cake</i><span>Cumpleaños</span></a></li>
         <li><a href="#configuracion"><i class="material-icons">settings</i><span>Configuración</span></a></li>
         <li><a href="#ayuda"><i class="material-icons">help</i><span>Ayuda</span></a></li>
