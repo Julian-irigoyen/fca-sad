@@ -1,15 +1,6 @@
 <?php
-session_start();
-// Database connection
-$db_host = 'localhost';
-$db_user = 'laticsfc_admindocentes';
-$db_pass = 'Laticsfcauach2025*';
-$db_name = 'laticsfc_bdfca';
-
-$conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
-if ($conn->connect_error) {
-    die("Database connection failed: " . $conn->connect_error);
-}
+require_once __DIR__ . '/../includes/db.php';
+$conn = get_db_connection();
 ?>
 
 <html lang="es">
@@ -19,13 +10,13 @@ if ($conn->connect_error) {
   <title>Panel de Administración</title>
   <!-- Montserrat Font & Material Icons -->
    
-  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
 
   <link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="../assets/style.css">
   <script src="https://www.gstatic.com/charts/loader.js"></script>
-  <script type="module" src="script.js" defer></script>
+  <script type="module" src="../assets/script.js" defer></script>
 </head>
 <body>
   <!-- Top horizontal header -->
@@ -39,13 +30,14 @@ if ($conn->connect_error) {
   <!-- Header con navegación superior -->
   <header>
     <h1>
-      <img src="logo-blanco.png" alt="Logo UACH" class="logo-placeholder">
+      <img src="../assets/logo-blanco.png" alt="Logo UACH" class="logo-placeholder">
       <span>FCA SAD</span>
     </h1> 
     <nav id="top-nav" aria-label="Navegación Principal">
       <ul>
         <li><a href="#dashboard" class="active"><i class="material-icons">dashboard</i><span>Dashboard</span></a></li>
         <li><a href="#usuarios"><i class="material-icons">people</i><span>Usuarios</span></a></li>
+        <li><a href="#avisos"><i class="material-icons">mail</i><span>Avisos</span></a></li>
         <li><a href="#cumpleanos"><i class="material-icons">cake</i><span>Cumpleaños</span></a></li>
         <li><a href="#configuracion"><i class="material-icons">settings</i><span>Configuración</span></a></li>
         <li><a href="#ayuda"><i class="material-icons">help</i><span>Ayuda</span></a></li>
@@ -228,6 +220,37 @@ if ($conn->connect_error) {
       </div>
     </section>
     
+
+    <!-- Sección envio de Correos/Avisos -->
+    <section id="avisos">
+      <div class="container mt-4">
+        <div class="card">
+          <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Enviar Aviso a Docentes</h4>
+          </div>
+          <div class="card-body">
+            <form action="includes/enviar.php" method="POST">
+              <div class="mb-3">
+                <label for="nombre" class="form-label">Nombre del remitente:</label>
+                <input type="text" class="form-control" name="nombre" id="nombre" placeholder="Ej. Coordinación FCA" required>
+              </div>
+              <div class="mb-3">
+                <label for="correos" class="form-label">Correos de los docentes:</label>
+                <input type="text" class="form-control" name="correos" id="correos" placeholder="Separar con comas" required>
+                <div class="form-text">Ej: docente1@fca.edu.mx, docente2@fca.edu.mx</div>
+              </div>
+              <div class="mb-3">
+                <label for="mensaje" class="form-label">Mensaje del aviso:</label>
+                <textarea class="form-control" name="mensaje" id="mensaje" rows="6" placeholder="Escribe aquí el contenido del aviso..." required></textarea>
+              </div>
+              <button type="submit" class="btn btn-success w-100">Enviar Aviso</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
     <!-- Sección Cumpleaños -->
     <section id="cumpleanos">
       <h2>Próximos Cumpleaños</h2>

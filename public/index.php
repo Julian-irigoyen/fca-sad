@@ -3,17 +3,10 @@ session_start();
 $error = '';
 $success = '';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Database connection placeholders
-    $db_host = 'localhost';
-    $db_user = 'laticsfc_admindocentes';
-    $db_pass = 'Laticsfcauach2025*';
-    $db_name = 'laticsfc_bdfca';
 
-    $conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
-    if ($conn->connect_error) {
-        die("Database connection failed: " . $conn->connect_error);
-    }
+require_once __DIR__ . '/../includes/db.php';
+$conn = get_db_connection();
+
 
     // Determine which form was submitted
     if (isset($_POST['action']) && $_POST['action'] === 'login') {
@@ -91,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
     $conn->close();
-}
+
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -101,10 +94,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <title>Login</title>
   <link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
-
-  <link rel="icon" href="favicon.ico" type="image/x-icon">
-  
+  <link rel="stylesheet" href="../assets/style.css">
+  <link rel="icon" href="../assets/favicon.ico" type="image/x-icon">
+  <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
   <style>
     /* Simple styles to toggle the visibility of forms */
     .hidden { display: none; }
@@ -115,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
   <div class="login-container">
     <div class="login-card">
-      <img src="logo.png" alt="Logo" class="login-logo-placeholder">
+      <img src="../assets/logo.png" alt="Logo" class="login-logo-placeholder">
       <h1>FCA SAD</h1>
       
       <!-- Display messages -->
