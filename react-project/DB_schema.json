@@ -1,0 +1,407 @@
+{
+  "facultades": [
+    {
+      "campo": "id_facultad",
+      "tipo": "INT",
+      "constraints": [
+        "PRIMARY KEY",
+        "AUTO_INCREMENT",
+        "NOT NULL"
+      ]
+    },
+    {
+      "campo": "nombre",
+      "tipo": "VARCHAR(100)",
+      "constraints": [
+        "UNIQUE",
+        "NOT NULL"
+      ]
+    }
+  ],
+  "docentes": [
+    {
+      "campo": "id_empleado",
+      "tipo": "INT",
+      "constraints": [
+        "PRIMARY KEY",
+        "NOT NULL"
+      ]
+    },
+    {
+      "campo": "nombre",
+      "tipo": "VARCHAR(50)",
+      "constraints": [
+        "NOT NULL"
+      ]
+    },
+    {
+      "campo": "apellido_paterno",
+      "tipo": "VARCHAR(50)",
+      "constraints": [
+        "NOT NULL"
+      ]
+    },
+    {
+      "campo": "apellido_materno",
+      "tipo": "VARCHAR(50)",
+      "constraints": [
+        "NOT NULL"
+      ]
+    },
+    {
+      "campo": "sexo",
+      "tipo": "ENUM('M', 'F', 'Otro')",
+      "constraints": [
+        "NOT NULL"
+      ]
+    },
+    {
+      "campo": "fecha_nacimiento",
+      "tipo": "DATE",
+      "constraints": [
+        "NOT NULL"
+      ]
+    },
+    {
+      "campo": "correo",
+      "tipo": "VARCHAR(100)",
+      "constraints": [
+        "UNIQUE",
+        "NOT NULL"
+      ]
+    },
+    {
+      "campo": "telefono",
+      "tipo": "VARCHAR(20)",
+      "constraints": []
+    },
+    {
+      "campo": "rfc",
+      "tipo": "VARCHAR(13)",
+      "constraints": []
+    },
+    {
+      "campo": "curp",
+      "tipo": "VARCHAR(18)",
+      "constraints": []
+    },
+    {
+      "campo": "tipo_contratacion",
+      "tipo": "ENUM('Tiempo Completo', 'Medio Tiempo', 'Honorarios')",
+      "constraints": []
+    },
+    {
+      "campo": "tipo_plaza",
+      "tipo": "ENUM('Base', 'Interino', 'Otro')",
+      "constraints": []
+    },
+    {
+      "campo": "fecha_ingreso",
+      "tipo": "DATE",
+      "constraints": [
+        "NOT NULL"
+      ]
+    },
+    {
+      "campo": "id_facultad",
+      "tipo": "INT",
+      "constraints": [
+        "FOREIGN KEY -> facultades.id_facultad"
+      ]
+    },
+    {
+      "campo": "imagen_perfil",
+      "tipo": "LONGBLOB",
+      "constraints": []
+    }
+  ],
+  "domicilios_docentes": [
+    {
+      "campo": "id_empleado",
+      "tipo": "INT",
+      "constraints": [
+        "PRIMARY KEY",
+        "FOREIGN KEY -> docentes.id_empleado"
+      ]
+    },
+    {
+      "campo": "calle",
+      "tipo": "VARCHAR(100)",
+      "constraints": []
+    },
+    {
+      "campo": "numero",
+      "tipo": "VARCHAR(10)",
+      "constraints": []
+    },
+    {
+      "campo": "colonia",
+      "tipo": "VARCHAR(100)",
+      "constraints": []
+    },
+    {
+      "campo": "ciudad",
+      "tipo": "VARCHAR(100)",
+      "constraints": []
+    },
+    {
+      "campo": "estado",
+      "tipo": "VARCHAR(100)",
+      "constraints": []
+    },
+    {
+      "campo": "codigo_postal",
+      "tipo": "VARCHAR(10)",
+      "constraints": []
+    }
+  ],
+  "certificados_academicos": [
+    {
+      "campo": "id_certificado",
+      "tipo": "INT",
+      "constraints": [
+        "PRIMARY KEY",
+        "AUTO_INCREMENT",
+        "NOT NULL"
+      ]
+    },
+    {
+      "campo": "id_empleado",
+      "tipo": "INT",
+      "constraints": [
+        "FOREIGN KEY -> docentes.id_empleado"
+      ]
+    },
+    {
+      "campo": "tipo",
+      "tipo": "ENUM('Licenciatura', 'Maestría', 'Doctorado')",
+      "constraints": [
+        "NOT NULL"
+      ]
+    },
+    {
+      "campo": "nombre_titulo",
+      "tipo": "VARCHAR(200)",
+      "constraints": [
+        "NOT NULL"
+      ]
+    },
+    {
+      "campo": "institucion",
+      "tipo": "VARCHAR(200)",
+      "constraints": []
+    },
+    {
+      "campo": "anio_obtencion",
+      "tipo": "YEAR",
+      "constraints": []
+    },
+    {
+      "campo": "archivo_pdf",
+      "tipo": "LONGBLOB",
+      "constraints": []
+    }
+  ],
+  "idiomas_docentes": [
+    {
+      "campo": "id_idioma",
+      "tipo": "INT",
+      "constraints": [
+        "PRIMARY KEY",
+        "AUTO_INCREMENT",
+        "NOT NULL"
+      ]
+    },
+    {
+      "campo": "id_empleado",
+      "tipo": "INT",
+      "constraints": [
+        "FOREIGN KEY -> docentes.id_empleado"
+      ]
+    },
+    {
+      "campo": "idioma",
+      "tipo": "VARCHAR(50)",
+      "constraints": [
+        "NOT NULL"
+      ]
+    },
+    {
+      "campo": "nivel",
+      "tipo": "ENUM('Básico', 'Intermedio', 'Avanzado', 'Nativo')",
+      "constraints": [
+        "NOT NULL"
+      ]
+    },
+    {
+      "campo": "certificado",
+      "tipo": "VARCHAR(100)",
+      "constraints": []
+    },
+    {
+      "campo": "archivo_certificado",
+      "tipo": "LONGBLOB",
+      "constraints": []
+    }
+  ],
+  "certificados_snii": [
+    {
+      "campo": "id_snii",
+      "tipo": "INT",
+      "constraints": [
+        "PRIMARY KEY",
+        "AUTO_INCREMENT",
+        "NOT NULL"
+      ]
+    },
+    {
+      "campo": "id_empleado",
+      "tipo": "INT",
+      "constraints": [
+        "FOREIGN KEY -> docentes.id_empleado"
+      ]
+    },
+    {
+      "campo": "nivel",
+      "tipo": "ENUM('Candidato', 'Nivel I', 'Nivel II', 'Nivel III')",
+      "constraints": [
+        "NOT NULL"
+      ]
+    },
+    {
+      "campo": "fecha_certificacion",
+      "tipo": "DATE",
+      "constraints": []
+    },
+    {
+      "campo": "archivo_certificado",
+      "tipo": "LONGBLOB",
+      "constraints": []
+    }
+  ],
+  "certificados_prodep": [
+    {
+      "campo": "id_prodep",
+      "tipo": "INT",
+      "constraints": [
+        "PRIMARY KEY",
+        "AUTO_INCREMENT",
+        "NOT NULL"
+      ]
+    },
+    {
+      "campo": "id_empleado",
+      "tipo": "INT",
+      "constraints": [
+        "FOREIGN KEY -> docentes.id_empleado"
+      ]
+    },
+    {
+      "campo": "fecha_fin",
+      "tipo": "DATE",
+      "constraints": []
+    },
+    {
+      "campo": "archivo_certificado",
+      "tipo": "LONGBLOB",
+      "constraints": []
+    }
+  ],
+  "publicaciones_docentes": [
+    {
+      "campo": "id_publicacion",
+      "tipo": "INT",
+      "constraints": [
+        "PRIMARY KEY",
+        "AUTO_INCREMENT",
+        "NOT NULL"
+      ]
+    },
+    {
+      "campo": "id_empleado",
+      "tipo": "INT",
+      "constraints": [
+        "FOREIGN KEY -> docentes.id_empleado"
+      ]
+    },
+    {
+      "campo": "tipo",
+      "tipo": "ENUM('Artículo', 'Libro', 'Ponencia', 'Otro')",
+      "constraints": [
+        "NOT NULL"
+      ]
+    },
+    {
+      "campo": "titulo",
+      "tipo": "VARCHAR(200)",
+      "constraints": [
+        "NOT NULL"
+      ]
+    },
+    {
+      "campo": "fecha_publicacion",
+      "tipo": "DATE",
+      "constraints": []
+    },
+    {
+      "campo": "revista_o_editorial",
+      "tipo": "VARCHAR(200)",
+      "constraints": []
+    },
+    {
+      "campo": "archivo_pdf",
+      "tipo": "LONGBLOB",
+      "constraints": []
+    }
+  ],
+  "usuarios": [
+    {
+      "campo": "id_usuario",
+      "tipo": "INT",
+      "constraints": [
+        "PRIMARY KEY",
+        "AUTO_INCREMENT",
+        "NOT NULL"
+      ]
+    },
+    {
+      "campo": "id_empleado",
+      "tipo": "INT",
+      "constraints": [
+        "FOREIGN KEY -> docentes.id_empleado"
+      ]
+    },
+    {
+      "campo": "email",
+      "tipo": "VARCHAR(100)",
+      "constraints": [
+        "UNIQUE",
+        "NOT NULL"
+      ]
+    },
+    {
+      "campo": "password_hash",
+      "tipo": "VARCHAR(255)",
+      "constraints": [
+        "NOT NULL"
+      ]
+    },
+    {
+      "campo": "rol",
+      "tipo": "ENUM('admin', 'docente', 'coordinador')",
+      "constraints": [
+        "NOT NULL"
+      ]
+    },
+    {
+      "campo": "ultimo_login",
+      "tipo": "DATETIME",
+      "constraints": []
+    },
+    {
+      "campo": "imagen_perfil",
+      "tipo": "LONGBLOB",
+      "constraints": []
+    }
+  ]
+}
