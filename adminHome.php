@@ -26,6 +26,167 @@ if ($conn->connect_error) {
   <link rel="stylesheet" href="style.css">
   <script src="https://www.gstatic.com/charts/loader.js"></script>
   <script type="module" src="script.js" defer></script>
+  <style>
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+    }
+
+    .modal-content {
+      background-color: #fefefe;
+      margin: 2% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 90%;
+      max-width: 800px;
+      border-radius: 8px;
+      position: relative;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-scroll {
+      overflow-y: auto;
+      max-height: calc(90vh - 150px);
+      padding-right: 10px;
+    }
+
+    .form-scroll::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .form-scroll::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 4px;
+    }
+
+    .form-scroll::-webkit-scrollbar-thumb {
+      background: #888;
+      border-radius: 4px;
+    }
+
+    .form-scroll::-webkit-scrollbar-thumb:hover {
+      background: #555;
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+      position: absolute;
+      right: 20px;
+      top: 10px;
+    }
+
+    .close:hover {
+      color: black;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    .form-group input:invalid,
+    .form-group select:invalid {
+      border-color: #ff6b6b;
+    }
+
+    .form-text {
+      display: block;
+      font-size: 0.8em;
+      color: #666;
+      margin-top: 4px;
+    }
+
+    .form-actions {
+      margin-top: 20px;
+      text-align: right;
+      padding-top: 15px;
+      border-top: 1px solid #ddd;
+    }
+
+    .action-btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+
+    .action-btn.add {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    .action-btn.save {
+      background-color: #2196F3;
+      color: white;
+    }
+
+    .action-btn.cancel {
+      background-color: #f44336;
+      color: white;
+    }
+
+    .action-btn:hover {
+      opacity: 0.9;
+    }
+
+    /* Loading indicator styles */
+    #loading-indicator {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.9);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 5px solid #f3f3f3;
+      border-top: 5px solid #3498db;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 10px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
 </head>
 <body>
   <!-- Top horizontal header -->
@@ -156,6 +317,118 @@ if ($conn->connect_error) {
       </p>
       <div class="card" aria-label="Lista de Docentes">
         <h3>Lista de Docentes</h3>
+        <button type="button" id="add-teacher-btn" class="action-btn add" style="margin-bottom: 20px;">
+          <i class="material-icons">person_add</i> Dar de Alta a un Docente
+        </button>
+
+        <!-- Modal para agregar docente -->
+        <div id="add-teacher-modal" class="modal" style="display: none;">
+          <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Agregar Nuevo Docente</h2>
+            <div id="loading-indicator" style="display: none;">
+              <div class="spinner"></div>
+              <p>Procesando...</p>
+            </div>
+            <form id="add-teacher-form" action="add_teacher.php" method="POST">
+              <div class="form-scroll">
+                <div class="form-group">
+                  <label for="curp">CURP:</label>
+                  <input type="text" id="curp" name="curp" required maxlength="18" pattern="^[A-Z]{4}[0-9]{6}[HM][A-Z]{5}[0-9A-Z]{2}$" 
+                         onchange="extractInfoFromCURP(this.value)" 
+                         title="Formato: 4 letras, 6 números, 1 letra (H/M), 5 letras, 2 alfanuméricos">
+                  <small class="form-text">Ejemplo: XXXX000000HXXXXX00</small>
+                </div>
+                <div class="form-group">
+                  <label for="rfc">RFC:</label>
+                  <input type="text" id="rfc" name="rfc" required maxlength="13" pattern="^[A-Z]{4}[0-9]{6}[A-Z0-9]{3}$"
+                         title="Formato: 4 letras, 6 números, 3 alfanuméricos">
+                  <small class="form-text">Ejemplo: XXXX000000XXX</small>
+                </div>
+                <div class="form-group">
+                  <label for="id_empleado">ID Empleado:</label>
+                  <input type="text" id="id_empleado" name="id_empleado" required>
+                </div>
+                <div class="form-group">
+                  <label for="nombre">Nombre:</label>
+                  <input type="text" id="nombre" name="nombre" required>
+                </div>
+                <div class="form-group">
+                  <label for="apellido_paterno">Apellido Paterno:</label>
+                  <input type="text" id="apellido_paterno" name="apellido_paterno" required>
+                </div>
+                <div class="form-group">
+                  <label for="apellido_materno">Apellido Materno:</label>
+                  <input type="text" id="apellido_materno" name="apellido_materno" required>
+                </div>
+                <div class="form-group">
+                  <label for="sexo">Sexo:</label>
+                  <select id="sexo" name="sexo" required>
+                    <option value="M">Masculino</option>
+                    <option value="F">Femenino</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="fecha_nacimiento">Fecha de Nacimiento:</label>
+                  <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" required>
+                </div>
+                <div class="form-group">
+                  <label for="correo">Correo:</label>
+                  <input type="email" id="correo" name="correo" required>
+                </div>
+                <div class="form-group">
+                  <label for="telefono">Teléfono:</label>
+                  <input type="tel" id="telefono" name="telefono" required pattern="[0-9]{10}" title="Ingrese 10 dígitos">
+                </div>
+                <div class="form-group">
+                  <label for="tipo_contratacion">Tipo de Contratación:</label>
+                  <select id="tipo_contratacion" name="tipo_contratacion" required>
+                    <option value="Tiempo Completo">Tiempo Completo</option>
+                    <option value="Medio Tiempo">Medio Tiempo</option>
+                    <option value="Por Hora">Por Hora</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="tipo_plaza">Tipo de Plaza:</label>
+                  <select id="tipo_plaza" name="tipo_plaza" required>
+                    <option value="Base">Base</option>
+                    <option value="Interino">Interino</option>
+                    <option value="Temporal">Temporal</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="fecha_ingreso">Fecha de Ingreso:</label>
+                  <input type="date" id="fecha_ingreso" name="fecha_ingreso" required>
+                </div>
+                <div class="form-group">
+                  <label for="facultad">Facultad:</label>
+                  <select id="facultad" name="id_facultad" required>
+                    <option value="1">Facultad de Contaduría y Administración</option>
+                    <option value="2">Facultad de Economía Internacional</option>
+                    <option value="3">Facultad de Informática</option>
+                    <option value="4">Facultad de Ciencias Políticas y Sociales</option>
+                    <option value="5">Facultad de Ciencias Químicas</option>
+                    <option value="6">Facultad de Ingeniería</option>
+                    <option value="7">Facultad de Medicina y Ciencias Biomédicas</option>
+                    <option value="8">Facultad de Odontología</option>
+                    <option value="9">Facultad de Enfermería y Nutriología</option>
+                    <option value="10">Facultad de Filosofía y Letras</option>
+                    <option value="11">Facultad de Artes</option>
+                    <option value="12">Facultad de Ciencias de la Cultura Física</option>
+                    <option value="13">Facultad de Zootecnia y Ecología</option>
+                    <option value="14">Facultad de Ciencias Agrícolas y Forestales</option>
+                    <option value="15">Facultad de Medicina Veterinaria y Zootecnia</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="action-btn save">Guardar</button>
+                <button type="button" class="action-btn cancel" onclick="closeModal()">Cancelar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
         <div class="table-search-container">
           <input type="text" id="user-search" placeholder="Buscar usuario por nombre, correo, RFC...">
           <button type="button" id="search-btn"><i class="material-icons">search</i> Buscar</button>
@@ -163,7 +436,7 @@ if ($conn->connect_error) {
         <div class="table-container">
         <?php
           // Query to get all docentes with all requested fields
-          $query = "SELECT id_empleado, nombre, sexo, fecha_nacimiento, correo, telefono, rfc, curp, 
+          $query = "SELECT id_empleado, nombre, apellido_paterno, apellido_materno, sexo, fecha_nacimiento, correo, telefono, rfc, curp, 
                     tipo_contratacion, tipo_plaza, fecha_ingreso, id_facultad 
                     FROM docentes 
                     ORDER BY id_empleado";
@@ -175,6 +448,8 @@ if ($conn->connect_error) {
                           <tr>
                               <th>ID Empleado</th>
                               <th>Nombre</th>
+                              <th>Apellido Paterno</th>
+                              <th>Apellido Materno</th>
                               <th>Sexo</th>
                               <th>Fecha Nacimiento</th>
                               <th>Correo</th>
@@ -195,6 +470,8 @@ if ($conn->connect_error) {
                   echo '<tr>
                           <td>'.htmlspecialchars($row['id_empleado']).'</td>
                           <td>'.htmlspecialchars($row['nombre']).'</td>
+                          <td>'.htmlspecialchars($row['apellido_paterno']).'</td>
+                          <td>'.htmlspecialchars($row['apellido_materno']).'</td>
                           <td>'.htmlspecialchars($row['sexo']).'</td>
                           <td>'.htmlspecialchars($row['fecha_nacimiento']).'</td>
                           <td>'.htmlspecialchars($row['correo']).'</td>
@@ -410,5 +687,173 @@ if ($conn->connect_error) {
   <footer>
     <p>&copy; 2023 Panel de Administración. Todos los derechos reservados.</p>
   </footer>
+  <script>
+    // Modal functionality
+    const modal = document.getElementById('add-teacher-modal');
+    const btn = document.getElementById('add-teacher-btn');
+    const span = document.getElementsByClassName('close')[0];
+    const loadingIndicator = document.getElementById('loading-indicator');
+
+    btn.onclick = function() {
+      modal.style.display = "block";
+    }
+
+    span.onclick = function() {
+      modal.style.display = "none";
+    }
+
+    window.onclick = function(event) {
+      if (event.target == modal) {
+        modal.style.display = "none";
+      }
+    }
+
+    function closeModal() {
+      modal.style.display = "none";
+    }
+
+    // Function to extract information from CURP
+    function extractInfoFromCURP(curp) {
+      if (curp.length !== 18) return;
+
+      // Extract sex from CURP (position 10)
+      const sex = curp.charAt(10);
+      document.getElementById('sexo').value = sex === 'H' ? 'M' : 'F';
+
+      // Extract birth date from CURP (positions 4-9)
+      const year = curp.substring(4, 6);
+      const month = curp.substring(6, 8);
+      const day = curp.substring(8, 10);
+      
+      // Determine century (19xx or 20xx)
+      const fullYear = parseInt(year) > 50 ? '19' + year : '20' + year;
+      
+      // Set the date
+      const birthDate = `${fullYear}-${month}-${day}`;
+      document.getElementById('fecha_nacimiento').value = birthDate;
+
+      // Extract first letter of first surname (position 0)
+      const firstSurname = curp.charAt(0);
+      // Extract first letter of second surname (position 1)
+      const secondSurname = curp.charAt(1);
+      // Extract first letter of name (position 2)
+      const name = curp.charAt(2);
+
+      // If RFC is empty, generate it from CURP
+      const rfcInput = document.getElementById('rfc');
+      if (!rfcInput.value) {
+        rfcInput.value = curp.substring(0, 10) + curp.substring(11, 13);
+      }
+    }
+
+    // Form validation
+    function validateForm() {
+      const form = document.getElementById('add-teacher-form');
+      const inputs = form.querySelectorAll('input[required], select[required]');
+      let isValid = true;
+
+      inputs.forEach(input => {
+        if (!input.value.trim()) {
+          input.classList.add('invalid');
+          isValid = false;
+        } else {
+          input.classList.remove('invalid');
+        }
+      });
+
+      return isValid;
+    }
+
+    // Check for duplicate ID
+    let idCheckTimeout;
+    const idEmpleadoInput = document.getElementById('id_empleado');
+    const idEmpleadoFeedback = document.createElement('div');
+    idEmpleadoFeedback.className = 'form-text';
+    idEmpleadoInput.parentNode.appendChild(idEmpleadoFeedback);
+
+    idEmpleadoInput.addEventListener('input', function() {
+      clearTimeout(idCheckTimeout);
+      const id = this.value.trim();
+      
+      if (id.length > 0) {
+        idCheckTimeout = setTimeout(() => {
+          fetch(`check_duplicate.php?id_empleado=${encodeURIComponent(id)}`)
+            .then(response => response.json())
+            .then(data => {
+              if (data.isDuplicate) {
+                idEmpleadoInput.classList.add('invalid');
+                idEmpleadoFeedback.textContent = data.message;
+                idEmpleadoFeedback.style.color = '#dc3545';
+              } else {
+                idEmpleadoInput.classList.remove('invalid');
+                idEmpleadoFeedback.textContent = data.message;
+                idEmpleadoFeedback.style.color = '#28a745';
+              }
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              idEmpleadoFeedback.textContent = 'Error al verificar el ID';
+              idEmpleadoFeedback.style.color = '#dc3545';
+            });
+        }, 500); // Debounce for 500ms
+      } else {
+        idEmpleadoFeedback.textContent = '';
+      }
+    });
+
+    // Form submission handling
+    document.getElementById('add-teacher-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      if (!validateForm()) {
+        alert('Por favor, complete todos los campos requeridos correctamente.');
+        return;
+      }
+
+      // Check if ID is duplicate before submitting
+      const idEmpleado = idEmpleadoInput.value.trim();
+      const isDuplicate = idEmpleadoInput.classList.contains('invalid');
+      
+      if (isDuplicate) {
+        alert('Por favor, ingrese un ID de empleado válido y único.');
+        return;
+      }
+
+      const formData = new FormData(this);
+      loadingIndicator.style.display = 'flex';
+      
+      fetch('add_teacher.php', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        loadingIndicator.style.display = 'none';
+        if (data.success) {
+          alert('Docente agregado exitosamente');
+          closeModal();
+          location.reload(); // Reload the page to show the new teacher
+        } else {
+          alert('Error al agregar docente: ' + data.message);
+        }
+      })
+      .catch(error => {
+        loadingIndicator.style.display = 'none';
+        console.error('Error:', error);
+        alert('Error al procesar la solicitud');
+      });
+    });
+
+    // Add input validation on blur
+    document.querySelectorAll('input[required], select[required]').forEach(input => {
+      input.addEventListener('blur', function() {
+        if (!this.value.trim()) {
+          this.classList.add('invalid');
+        } else {
+          this.classList.remove('invalid');
+        }
+      });
+    });
+  </script>
 </body>
 </html>
