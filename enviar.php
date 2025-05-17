@@ -8,47 +8,11 @@ function mostrarResultado($mensaje, $exito = true) {
         <meta charset="UTF-8">
         <title>Resultado del envío</title>
         <meta http-equiv="refresh" content="15;url=/proyecto2.0/home.php#avisos">
-        <style>
-            body {
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                background-color: #f4f4f4;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                height: 100vh;
-                margin: 0;
-            }
-            .resultado-container {
-                background-color: #fff;
-                padding: 40px;
-                max-width: 500px;
-                text-align: center;
-                border-radius: 12px;
-                box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            }
-            .resultado-container h2 {
-                color: $color;
-                margin-bottom: 20px;
-            }
-            .boton-regresar {
-                background-color: #2980b9;
-                color: white;
-                padding: 12px 25px;
-                text-decoration: none;
-                font-size: 16px;
-                border-radius: 5px;
-                display: inline-block;
-                margin-top: 20px;
-                transition: background 0.3s ease;
-            }
-            .boton-regresar:hover {
-                background-color: #1c5980;
-            }
-        </style>
+        <link rel="stylesheet" href="enviar.css">
     </head>
     <body>
         <div class="resultado-container">
-            <h2>$mensaje</h2>
+            <h2 style="color: $color;">$mensaje</h2>
             <p>Serás redirigido automáticamente a la página principal en unos segundos...</p>
             <a class="boton-regresar" href="/proyecto2.0/home.php#avisos">Volver a la página principal</a>
         </div>

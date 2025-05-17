@@ -26,6 +26,7 @@ if ($conn->connect_error) {
   <link rel="stylesheet" href="style.css">
   <script src="https://www.gstatic.com/charts/loader.js"></script>
   <script type="module" src="script.js" defer></script>
+  <link rel="stylesheet" href="admin.css">
   <style>
     /* Modal styles */
     .modal {
@@ -309,203 +310,36 @@ if ($conn->connect_error) {
       </div>
     </section>
     
-    <!-- Sección Usuarios -->
+    <!-- Sección Usuarios (CRUD principal) -->
     <section id="usuarios">
-      <h2>Administrar Usuarios</h2>
-      <p>
-        Gestione la información y permisos de los usuarios registrados.
-      </p>
-      <div class="card" aria-label="Lista de Docentes">
-        <h3>Lista de Docentes</h3>
-        <button type="button" id="add-teacher-btn" class="action-btn add" style="margin-bottom: 20px;">
-          <i class="material-icons">person_add</i> Dar de Alta a un Docente
-        </button>
-
-        <!-- Modal para agregar docente -->
-        <div id="add-teacher-modal" class="modal" style="display: none;">
-          <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Agregar Nuevo Docente</h2>
-            <div id="loading-indicator" style="display: none;">
-              <div class="spinner"></div>
-              <p>Procesando...</p>
-            </div>
-            <form id="add-teacher-form" action="add_teacher.php" method="POST">
-              <div class="form-scroll">
-                <div class="form-group">
-                  <label for="curp">CURP:</label>
-                  <input type="text" id="curp" name="curp" required maxlength="18" pattern="^[A-Z]{4}[0-9]{6}[HM][A-Z]{5}[0-9A-Z]{2}$" 
-                         onchange="extractInfoFromCURP(this.value)" 
-                         title="Formato: 4 letras, 6 números, 1 letra (H/M), 5 letras, 2 alfanuméricos">
-                  <small class="form-text">Ejemplo: XXXX000000HXXXXX00</small>
-                </div>
-                <div class="form-group">
-                  <label for="rfc">RFC:</label>
-                  <input type="text" id="rfc" name="rfc" required maxlength="13" pattern="^[A-Z]{4}[0-9]{6}[A-Z0-9]{3}$"
-                         title="Formato: 4 letras, 6 números, 3 alfanuméricos">
-                  <small class="form-text">Ejemplo: XXXX000000XXX</small>
-                </div>
-                <div class="form-group">
-                  <label for="id_empleado">ID Empleado:</label>
-                  <input type="text" id="id_empleado" name="id_empleado" required>
-                </div>
-                <div class="form-group">
-                  <label for="nombre">Nombre:</label>
-                  <input type="text" id="nombre" name="nombre" required>
-                </div>
-                <div class="form-group">
-                  <label for="apellido_paterno">Apellido Paterno:</label>
-                  <input type="text" id="apellido_paterno" name="apellido_paterno" required>
-                </div>
-                <div class="form-group">
-                  <label for="apellido_materno">Apellido Materno:</label>
-                  <input type="text" id="apellido_materno" name="apellido_materno" required>
-                </div>
-                <div class="form-group">
-                  <label for="sexo">Sexo:</label>
-                  <select id="sexo" name="sexo" required>
-                    <option value="M">Masculino</option>
-                    <option value="F">Femenino</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label for="fecha_nacimiento">Fecha de Nacimiento:</label>
-                  <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" required>
-                </div>
-                <div class="form-group">
-                  <label for="correo">Correo:</label>
-                  <input type="email" id="correo" name="correo" required>
-                </div>
-                <div class="form-group">
-                  <label for="telefono">Teléfono:</label>
-                  <input type="tel" id="telefono" name="telefono" required pattern="[0-9]{10}" title="Ingrese 10 dígitos">
-                </div>
-                <div class="form-group">
-                  <label for="tipo_contratacion">Tipo de Contratación:</label>
-                  <select id="tipo_contratacion" name="tipo_contratacion" required>
-                    <option value="Tiempo Completo">Tiempo Completo</option>
-                    <option value="Medio Tiempo">Medio Tiempo</option>
-                    <option value="Por Hora">Por Hora</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label for="tipo_plaza">Tipo de Plaza:</label>
-                  <select id="tipo_plaza" name="tipo_plaza" required>
-                    <option value="Base">Base</option>
-                    <option value="Interino">Interino</option>
-                    <option value="Temporal">Temporal</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label for="fecha_ingreso">Fecha de Ingreso:</label>
-                  <input type="date" id="fecha_ingreso" name="fecha_ingreso" required>
-                </div>
-                <div class="form-group">
-                  <label for="facultad">Facultad:</label>
-                  <select id="facultad" name="id_facultad" required>
-                    <option value="1">Facultad de Contaduría y Administración</option>
-                    <option value="2">Facultad de Economía Internacional</option>
-                    <option value="3">Facultad de Informática</option>
-                    <option value="4">Facultad de Ciencias Políticas y Sociales</option>
-                    <option value="5">Facultad de Ciencias Químicas</option>
-                    <option value="6">Facultad de Ingeniería</option>
-                    <option value="7">Facultad de Medicina y Ciencias Biomédicas</option>
-                    <option value="8">Facultad de Odontología</option>
-                    <option value="9">Facultad de Enfermería y Nutriología</option>
-                    <option value="10">Facultad de Filosofía y Letras</option>
-                    <option value="11">Facultad de Artes</option>
-                    <option value="12">Facultad de Ciencias de la Cultura Física</option>
-                    <option value="13">Facultad de Zootecnia y Ecología</option>
-                    <option value="14">Facultad de Ciencias Agrícolas y Forestales</option>
-                    <option value="15">Facultad de Medicina Veterinaria y Zootecnia</option>
-                  </select>
-                </div>
-              </div>
-              <div class="form-actions">
-                <button type="submit" class="action-btn save">Guardar</button>
-                <button type="button" class="action-btn cancel" onclick="closeModal()">Cancelar</button>
-              </div>
-            </form>
-          </div>
-        </div>
-
-        <div class="table-search-container">
-          <input type="text" id="user-search" placeholder="Buscar usuario por nombre, correo, RFC...">
-          <button type="button" id="search-btn"><i class="material-icons">search</i> Buscar</button>
-        </div>
-        <div class="table-container">
-        <?php
-          // Query to get all docentes with all requested fields
-          $query = "SELECT id_empleado, nombre, apellido_paterno, apellido_materno, sexo, fecha_nacimiento, correo, telefono, rfc, curp, 
-                    tipo_contratacion, tipo_plaza, fecha_ingreso, id_facultad 
-                    FROM docentes 
-                    ORDER BY id_empleado";
-          $result = $conn->query($query);
-
-          if ($result) {
-              echo '<table class="data-table">
-                      <thead>
-                          <tr>
-                              <th>ID Empleado</th>
-                              <th>Nombre</th>
-                              <th>Apellido Paterno</th>
-                              <th>Apellido Materno</th>
-                              <th>Sexo</th>
-                              <th>Fecha Nacimiento</th>
-                              <th>Correo</th>
-                              <th>Teléfono</th>
-                              <th>RFC</th>
-                              <th>CURP</th>
-                              <th>Tipo Contratación</th>
-                              <th>Tipo Plaza</th>
-                              <th>Fecha Ingreso</th>
-                              <th>ID Facultad</th>
-                              <th>Editar</th>
-                              <th>Eliminar</th>
-                          </tr>
-                      </thead>
-                      <tbody>';
-
-              while ($row = $result->fetch_assoc()) {
-                  echo '<tr>
-                          <td>'.htmlspecialchars($row['id_empleado']).'</td>
-                          <td>'.htmlspecialchars($row['nombre']).'</td>
-                          <td>'.htmlspecialchars($row['apellido_paterno']).'</td>
-                          <td>'.htmlspecialchars($row['apellido_materno']).'</td>
-                          <td>'.htmlspecialchars($row['sexo']).'</td>
-                          <td>'.htmlspecialchars($row['fecha_nacimiento']).'</td>
-                          <td>'.htmlspecialchars($row['correo']).'</td>
-                          <td>'.htmlspecialchars($row['telefono']).'</td>
-                          <td>'.htmlspecialchars($row['rfc']).'</td>
-                          <td>'.htmlspecialchars($row['curp']).'</td>
-                          <td>'.htmlspecialchars($row['tipo_contratacion']).'</td>
-                          <td>'.htmlspecialchars($row['tipo_plaza']).'</td>
-                          <td>'.htmlspecialchars($row['fecha_ingreso']).'</td>
-                          <td>'.htmlspecialchars($row['id_facultad']).'</td>
-                          <td>
-                              <button class="action-btn edit" data-id="'.htmlspecialchars($row['id_empleado']).'">
-                                  Editar
-                              </button>
-                          </td>
-                          <td>
-                              <button class="action-btn delete" data-id="'.htmlspecialchars($row['id_empleado']).'">
-                                  Eliminar
-                              </button>
-                          </td>
-                      </tr>';
-              }
-
-              echo '</tbody></table>';
-          } else {
-              echo '<p class="error-message">Error al cargar los docentes: ' . $conn->error . '</p>';
-          }
-          ?> 
-          <div id="usuarios">
-          </div>
-        </div>
+      <h2>CRUD de Docentes</h2>
+      <div class="tabs-container">
+        <ul class="tabs" id="crud-tabs">
+          <li class="tab active" data-table="docentes">Docentes</li>
+          <li class="tab" data-table="domicilios_docentes">Domicilios</li>
+          <li class="tab" data-table="certificados_academicos">Certificados Académicos</li>
+          <li class="tab" data-table="idiomas_docentes">Idiomas</li>
+          <li class="tab" data-table="certificados_snii">SNI</li>
+          <li class="tab" data-table="certificados_prodep">PRODEP</li>
+          <li class="tab" data-table="publicaciones_docentes">Publicaciones</li>
+          <li class="tab" data-table="facultades">Facultades</li>
+        </ul>
+      </div>
+      <div class="crud-toolbar">
+        <button id="nuevo-btn" class="action-btn add">Nuevo</button>
+        <input type="text" id="search-input" class="search-input" placeholder="Buscar">
+      </div>
+      <div id="crud-table-container">
+        <!-- Table will be loaded here dynamically -->
       </div>
     </section>
     
+    <!-- Dynamic Modal -->
+    <div id="crud-modal" class="modal" style="display:none;">
+      <div class="modal-content" id="crud-modal-content">
+        <!-- Modal content will be loaded dynamically -->
+      </div>
+    </div>
 
     <!-- Sección envio de Correos/Avisos -->
     <section id="avisos">
@@ -688,172 +522,116 @@ if ($conn->connect_error) {
     <p>&copy; 2023 Panel de Administración. Todos los derechos reservados.</p>
   </footer>
   <script>
-    // Modal functionality
-    const modal = document.getElementById('add-teacher-modal');
-    const btn = document.getElementById('add-teacher-btn');
-    const span = document.getElementsByClassName('close')[0];
-    const loadingIndicator = document.getElementById('loading-indicator');
+    // Tab switching logic
+    const tabs = document.querySelectorAll('.tab');
+    const crudTableContainer = document.getElementById('crud-table-container');
+    const nuevoBtn = document.getElementById('nuevo-btn');
+    const crudModal = document.getElementById('crud-modal');
+    const crudModalContent = document.getElementById('crud-modal-content');
+    let currentTable = 'docentes';
 
-    btn.onclick = function() {
-      modal.style.display = "block";
-    }
-
-    span.onclick = function() {
-      modal.style.display = "none";
-    }
-
-    window.onclick = function(event) {
-      if (event.target == modal) {
-        modal.style.display = "none";
-      }
-    }
-
-    function closeModal() {
-      modal.style.display = "none";
-    }
-
-    // Function to extract information from CURP
-    function extractInfoFromCURP(curp) {
-      if (curp.length !== 18) return;
-
-      // Extract sex from CURP (position 10)
-      const sex = curp.charAt(10);
-      document.getElementById('sexo').value = sex === 'H' ? 'M' : 'F';
-
-      // Extract birth date from CURP (positions 4-9)
-      const year = curp.substring(4, 6);
-      const month = curp.substring(6, 8);
-      const day = curp.substring(8, 10);
-      
-      // Determine century (19xx or 20xx)
-      const fullYear = parseInt(year) > 50 ? '19' + year : '20' + year;
-      
-      // Set the date
-      const birthDate = `${fullYear}-${month}-${day}`;
-      document.getElementById('fecha_nacimiento').value = birthDate;
-
-      // Extract first letter of first surname (position 0)
-      const firstSurname = curp.charAt(0);
-      // Extract first letter of second surname (position 1)
-      const secondSurname = curp.charAt(1);
-      // Extract first letter of name (position 2)
-      const name = curp.charAt(2);
-
-      // If RFC is empty, generate it from CURP
-      const rfcInput = document.getElementById('rfc');
-      if (!rfcInput.value) {
-        rfcInput.value = curp.substring(0, 10) + curp.substring(11, 13);
-      }
-    }
-
-    // Form validation
-    function validateForm() {
-      const form = document.getElementById('add-teacher-form');
-      const inputs = form.querySelectorAll('input[required], select[required]');
-      let isValid = true;
-
-      inputs.forEach(input => {
-        if (!input.value.trim()) {
-          input.classList.add('invalid');
-          isValid = false;
-        } else {
-          input.classList.remove('invalid');
-        }
+    function setActiveTab(tabName) {
+      tabs.forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.table === tabName);
       });
-
-      return isValid;
+      currentTable = tabName;
+      loadTable(tabName);
+      updateNuevoBtnColor(tabName);
     }
 
-    // Check for duplicate ID
-    let idCheckTimeout;
-    const idEmpleadoInput = document.getElementById('id_empleado');
-    const idEmpleadoFeedback = document.createElement('div');
-    idEmpleadoFeedback.className = 'form-text';
-    idEmpleadoInput.parentNode.appendChild(idEmpleadoFeedback);
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => setActiveTab(tab.dataset.table));
+    });
 
-    idEmpleadoInput.addEventListener('input', function() {
-      clearTimeout(idCheckTimeout);
-      const id = this.value.trim();
-      
-      if (id.length > 0) {
-        idCheckTimeout = setTimeout(() => {
-          fetch(`check_duplicate.php?id_empleado=${encodeURIComponent(id)}`)
-            .then(response => response.json())
-            .then(data => {
-              if (data.isDuplicate) {
-                idEmpleadoInput.classList.add('invalid');
-                idEmpleadoFeedback.textContent = data.message;
-                idEmpleadoFeedback.style.color = '#dc3545';
-              } else {
-                idEmpleadoInput.classList.remove('invalid');
-                idEmpleadoFeedback.textContent = data.message;
-                idEmpleadoFeedback.style.color = '#28a745';
-              }
-            })
-            .catch(error => {
-              console.error('Error:', error);
-              idEmpleadoFeedback.textContent = 'Error al verificar el ID';
-              idEmpleadoFeedback.style.color = '#dc3545';
-            });
-        }, 500); // Debounce for 500ms
+    function updateNuevoBtnColor(tabName) {
+      if (tabName === 'docentes') {
+        nuevoBtn.classList.add('add');
+        nuevoBtn.classList.remove('delete');
       } else {
-        idEmpleadoFeedback.textContent = '';
+        nuevoBtn.classList.remove('add');
+        nuevoBtn.classList.add('delete');
       }
-    });
+    }
 
-    // Form submission handling
-    document.getElementById('add-teacher-form').addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      if (!validateForm()) {
-        alert('Por favor, complete todos los campos requeridos correctamente.');
-        return;
-      }
-
-      // Check if ID is duplicate before submitting
-      const idEmpleado = idEmpleadoInput.value.trim();
-      const isDuplicate = idEmpleadoInput.classList.contains('invalid');
-      
-      if (isDuplicate) {
-        alert('Por favor, ingrese un ID de empleado válido y único.');
-        return;
-      }
-
-      const formData = new FormData(this);
-      loadingIndicator.style.display = 'flex';
-      
-      fetch('add_teacher.php', {
-        method: 'POST',
-        body: formData
-      })
-      .then(response => response.json())
-      .then(data => {
-        loadingIndicator.style.display = 'none';
-        if (data.success) {
-          alert('Docente agregado exitosamente');
-          closeModal();
-          location.reload(); // Reload the page to show the new teacher
-        } else {
-          alert('Error al agregar docente: ' + data.message);
-        }
-      })
-      .catch(error => {
-        loadingIndicator.style.display = 'none';
-        console.error('Error:', error);
-        alert('Error al procesar la solicitud');
+    // Load table data via AJAX
+    function renderDocentesTable(data) {
+      let html = `<table class="data-table compact-table">
+        <thead><tr>
+          <th>ID Empleado</th>
+          <th>Nombre</th>
+          <th>Apellido Paterno</th>
+          <th>Apellido Materno</th>
+          <th>Sexo</th>
+          <th>Fecha Nacimiento</th>
+          <th>Correo</th>
+          <th>Teléfono</th>
+          <th>CURP</th>
+          <th>Acciones</th>
+        </tr></thead><tbody>`;
+      data.forEach(row => {
+        html += `<tr>
+          <td>${row.id_empleado}</td>
+          <td>${row.nombre}</td>
+          <td>${row.apellido_paterno}</td>
+          <td>${row.apellido_materno}</td>
+          <td>${row.sexo}</td>
+          <td>${row.fecha_nacimiento}</td>
+          <td>${row.correo}</td>
+          <td>${row.telefono || ''}</td>
+          <td>${row.curp || ''}</td>
+          <td class="actions">
+            <button class="action-btn edit" data-id="${row.id_empleado}"><i class="material-icons">edit</i></button>
+            <button class="action-btn delete" data-id="${row.id_empleado}"><i class="material-icons">delete</i></button>
+          </td>
+        </tr>`;
       });
+      html += '</tbody></table>';
+      crudTableContainer.innerHTML = html;
+    }
+
+    function loadTable(tableName) {
+      if (tableName === 'docentes') {
+        fetch('api_docentes.php?action=list')
+          .then(res => res.json())
+          .then(json => {
+            if (json.success) {
+              renderDocentesTable(json.data);
+            } else {
+              crudTableContainer.innerHTML = `<div class='error'>${json.error || 'Error al cargar docentes.'}</div>`;
+            }
+          })
+          .catch(() => {
+            crudTableContainer.innerHTML = `<div class='error'>Error de conexión al cargar docentes.</div>`;
+          });
+      } else {
+        crudTableContainer.innerHTML = '<div class="info">Funcionalidad aún no implementada para esta tabla.</div>';
+      }
+    }
+
+    // Show modal for add/edit
+    nuevoBtn.addEventListener('click', () => {
+      showCrudModal('add', currentTable);
     });
 
-    // Add input validation on blur
-    document.querySelectorAll('input[required], select[required]').forEach(input => {
-      input.addEventListener('blur', function() {
-        if (!this.value.trim()) {
-          this.classList.add('invalid');
-        } else {
-          this.classList.remove('invalid');
-        }
-      });
-    });
+    function showCrudModal(mode, table, id = null) {
+      fetch(`api/${table}.php?action=form&mode=${mode}` + (id ? `&id=${id}` : ''))
+        .then(res => res.text())
+        .then(html => {
+          crudModalContent.innerHTML = html;
+          crudModal.style.display = 'block';
+        });
+    }
+
+    // Hide modal on click outside
+    window.onclick = function(event) {
+      if (event.target == crudModal) {
+        crudModal.style.display = 'none';
+      }
+    }
+
+    // Initial load
+    loadTable('docentes');
+    updateNuevoBtnColor('docentes');
   </script>
 </body>
 </html>
