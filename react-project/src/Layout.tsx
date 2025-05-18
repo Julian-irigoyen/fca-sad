@@ -10,8 +10,9 @@ import HelpIcon from '@mui/icons-material/Help';
 import GroupIcon from '@mui/icons-material/Group';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import logo from './assets/logo-blanco.png';
+import { createPortal } from 'react-dom';
 
 const drawerWidth = 240;
 const collapsedWidth = 64;
@@ -31,6 +32,21 @@ export default function Layout() {
     const [mobileOpen, setMobileOpen] = useState(false);
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const navigate = useNavigate();
+    const [modalOpen, setModalOpen] = useState(false);
+
+    useEffect(() => {
+        const checkModal = () => {
+            setModalOpen(!!document.querySelector('.MuiDialog-root[open]'));
+        };
+        document.addEventListener('mousedown', checkModal);
+        document.addEventListener('keydown', checkModal);
+        const interval = setInterval(checkModal, 200);
+        return () => {
+            document.removeEventListener('mousedown', checkModal);
+            document.removeEventListener('keydown', checkModal);
+            clearInterval(interval);
+        };
+    }, []);
 
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
@@ -97,17 +113,14 @@ export default function Layout() {
     return (
         <Box sx={{ display: 'flex' }}>
             <CssBaseline />
-            <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1, background: 'linear-gradient(90deg, #861d1d 0%, #931010 100%)' }}>
-                <Toolbar>
-
-                </Toolbar>
+            <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer - 1, background: 'linear-gradient(90deg, #861d1d 0%, #931010 100%)', height: 65, justifyContent: 'center' }}>
             </AppBar>
             <Box
                 component="nav"
                 sx={{
                     width: { sm: sidebarOpen ? drawerWidth : collapsedWidth },
                     flexShrink: { sm: 0 },
-                    zIndex: 1301,
+                    zIndex: 1200,
                 }}
                 aria-label="mailbox folders"
             >
@@ -123,7 +136,9 @@ export default function Layout() {
                             width: drawerWidth,
                             background: 'linear-gradient(180deg, #861d1d 0%, #931010 100%)',
                             color: '#fff',
+                            zIndex: 1200,
                         },
+                        zIndex: 1200,
                     }}
                 >
                     {drawer}
@@ -140,11 +155,26 @@ export default function Layout() {
                             background: 'linear-gradient(180deg, #861d1d 0%, #931010 100%)',
                             color: '#fff',
                             transition: 'width 0.3s',
-                            zIndex: 1301,
+                            zIndex: 1200,
                         },
+                        zIndex: 1200,
                     }}
                 >
                     {drawer}
+                    {modalOpen && createPortal(
+                        <Box sx={{
+                            position: 'fixed',
+                            left: 0,
+                            top: 0,
+                            width: sidebarOpen ? drawerWidth : collapsedWidth,
+                            height: '100vh',
+                            bgcolor: 'rgba(255,255,255,0.35)',
+                            backdropFilter: 'blur(4px)',
+                            zIndex: 1299,
+                            pointerEvents: 'auto',
+                        }} />,
+                        document.body
+                    )}
                 </Drawer>
             </Box>
             <Box
@@ -156,9 +186,10 @@ export default function Layout() {
                     background: 'linear-gradient(180deg, #fff 0%, #fff6f6 100%)',
                     minHeight: '100vh',
                     transition: 'width 0.3s',
+                    mt: 0,
                 }}
             >
-                <Toolbar />
+                <Toolbar sx={{ minHeight: 72 }} />
                 <Outlet />
             </Box>
         </Box>

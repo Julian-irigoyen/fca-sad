@@ -4,6 +4,14 @@ import mysql from 'mysql2/promise';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import bcrypt from 'bcryptjs';
+import facultadesRoutes from './routes/facultades.js';
+import domiciliosDocentesRoutes from './routes/domicilios_docentes.js';
+import certificadosAcademicosRoutes from './routes/certificados_academicos.js';
+import idiomasDocentesRoutes from './routes/idiomas_docentes.js';
+import certificadosSniiRoutes from './routes/certificados_snii.js';
+import certificadosProdepRoutes from './routes/certificados_prodep.js';
+import publicacionesDocentesRoutes from './routes/publicaciones_docentes.js';
+import usuariosRoutes from './routes/usuarios.js';
 dotenv.config();
 
 function isValidEmail(email) {
@@ -341,6 +349,15 @@ app.get('/api/:table', async (req, res) => {
     res.status(500).json({ error: 'Error al obtener datos.' });
   }
 });
+
+app.use('/api/facultades', facultadesRoutes(pool));
+app.use('/api/domicilios_docentes', domiciliosDocentesRoutes(pool));
+app.use('/api/certificados_academicos', certificadosAcademicosRoutes(pool));
+app.use('/api/idiomas_docentes', idiomasDocentesRoutes(pool));
+app.use('/api/certificados_snii', certificadosSniiRoutes(pool));
+app.use('/api/certificados_prodep', certificadosProdepRoutes(pool));
+app.use('/api/publicaciones_docentes', publicacionesDocentesRoutes(pool));
+app.use('/api/usuarios', usuariosRoutes(pool));
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {

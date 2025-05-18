@@ -5,6 +5,7 @@ import type { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
+import { Download as DownloadIcon, PictureAsPdf as PdfIcon } from '@mui/icons-material';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
@@ -200,6 +201,14 @@ const TABLE_CONFIG: Record<string, {
     },
 };
 
+const PDF_FIELDS: Record<string, string> = {
+    certificados_academicos: 'archivo_pdf',
+    idiomas_docentes: 'archivo_certificado',
+    certificados_snii: 'archivo_certificado',
+    certificados_prodep: 'archivo_certificado',
+    publicaciones_docentes: 'archivo_pdf',
+};
+
 // Debounce hook
 function useDebouncedValue<T>(value: T, delay: number): T {
     const [debounced, setDebounced] = useState(value);
@@ -267,8 +276,14 @@ export default function Docentes() {
         }
     }, []);
 
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, files } = e.target;
+        if (files && files.length > 0) {
+            setForm({ ...form, [name]: files[0] });
+        }
+    };
+
     const handleSave = async () => {
-        // Validación simple: campos requeridos
         const config = TABLE_CONFIG[selectedTable];
         for (const field of config.fields) {
             if (field.required && !form[field.name]) {
@@ -276,7 +291,6 @@ export default function Docentes() {
                 return;
             }
         }
-        // Validaciones específicas para docentes
         if (selectedTable === 'docentes') {
             if (!isValidEmail(form.correo)) {
                 setFormError('El correo no tiene un formato válido.');
@@ -295,18 +309,43 @@ export default function Docentes() {
         setLoading(true);
         try {
             let res;
-            if (editing) {
-                res = await fetch(`${API_URL}/${config.endpoint}/${editing[config.fields[0].name]}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(form),
+            const pdfField = PDF_FIELDS[selectedTable];
+            if (pdfField) {
+                const formData = new FormData();
+                Object.entries(form).forEach(([key, value]) => {
+                    if (
+                        value !== undefined &&
+                        value !== null &&
+                        (typeof value === 'string' || typeof value === 'number' || value instanceof File || value instanceof Blob)
+                    ) {
+                        formData.append(key, value as any);
+                    }
                 });
+                if (editing) {
+                    res = await fetch(`${API_URL}/${config.endpoint}/${editing[config.fields[0].name]}`, {
+                        method: 'PUT',
+                        body: formData,
+                    });
+                } else {
+                    res = await fetch(`${API_URL}/${config.endpoint}`, {
+                        method: 'POST',
+                        body: formData,
+                    });
+                }
             } else {
-                res = await fetch(`${API_URL}/${config.endpoint}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(form),
-                });
+                if (editing) {
+                    res = await fetch(`${API_URL}/${config.endpoint}/${editing[config.fields[0].name]}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(form),
+                    });
+                } else {
+                    res = await fetch(`${API_URL}/${config.endpoint}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(form),
+                    });
+                }
             }
             if (!res.ok) {
                 let errorMsg = '';
@@ -314,9 +353,10 @@ export default function Docentes() {
                     const data = await res.json();
                     errorMsg = data.error || '';
                 } catch { }
-                // Mensaje claro para correo duplicado
                 if (errorMsg && errorMsg.toLowerCase().includes('correo')) {
                     setFormError('El correo ya está registrado. Usa uno diferente.');
+                } else if (errorMsg && errorMsg.toLowerCase().includes('id') && errorMsg.toLowerCase().includes('existe')) {
+                    setFormError('El ID ya existe. Usa un ID diferente o deja el campo vacío para autoincrementar.');
                 } else {
                     setFormError(errorMsg || 'Error al guardar');
                 }
@@ -376,14 +416,42 @@ export default function Docentes() {
     const columns = useMemo<GridColDef[]>(() => {
         const config = TABLE_CONFIG[selectedTable];
         return [
-            ...config.fields.map(f => ({
-                field: f.name,
-                headerName: f.label,
-                width: 160,
-                valueFormatter: f.type === 'date'
-                    ? (params: any) => (params && params.value ? String(params.value).slice(0, 10) : '')
-                    : undefined,
-            })),
+            ...config.fields.map(f => {
+                // Si es campo PDF/BLOB, renderiza botón de descarga
+                if (selectedTable in PDF_FIELDS && f.name === PDF_FIELDS[selectedTable]) {
+                    return {
+                        field: f.name,
+                        headerName: 'Archivo PDF',
+                        width: 160,
+                        sortable: false,
+                        renderCell: (params: GridRenderCellParams) => {
+                            const pdfId = params.row[TABLE_CONFIG[selectedTable].fields[0].name];
+                            const hasFile = !!params.row[f.name];
+                            return hasFile ? (
+                                <IconButton
+                                    color="primary"
+                                    component="a"
+                                    href={`${API_URL}/${TABLE_CONFIG[selectedTable].endpoint}/${pdfId}/pdf`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    title="Descargar PDF"
+                                >
+                                    <DownloadIcon />
+                                </IconButton>
+                            ) : null;
+                        },
+                    };
+                }
+                // Otros campos normales
+                return {
+                    field: f.name,
+                    headerName: f.label,
+                    width: 160,
+                    valueFormatter: f.type === 'date'
+                        ? (params: any) => (params && params.value ? String(params.value).slice(0, 10) : '')
+                        : undefined,
+                };
+            }),
             {
                 field: 'actions',
                 headerName: 'Acciones',
@@ -454,9 +522,53 @@ export default function Docentes() {
             <Dialog open={modalOpen} onClose={handleModalClose} maxWidth="md" fullWidth>
                 <DialogTitle>{editing ? `Editar ${toPrettyLabel(selectedTable).slice(0, -1)}` : `Nuevo ${toPrettyLabel(selectedTable).slice(0, -1)}`}</DialogTitle>
                 <DialogContent>
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 1 }}>
-                        {TABLE_CONFIG[selectedTable].fields.map(field => (
-                            (editing && field.name === TABLE_CONFIG[selectedTable].fields[0].name) ? null : (
+                    <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 2, mt: 1, width: '100%', p: 0 }}>
+                        {TABLE_CONFIG[selectedTable].fields.map(field => {
+                            if (editing && field.name === TABLE_CONFIG[selectedTable].fields[0].name) return null;
+                            // PDF/BLOB fields
+                            if (
+                                (selectedTable in PDF_FIELDS && field.name === PDF_FIELDS[selectedTable])
+                            ) {
+                                const pdfId = editing ? editing[TABLE_CONFIG[selectedTable].fields[0].name] : null;
+                                let fileName = '';
+                                if (form[field.name] instanceof File) {
+                                    fileName = form[field.name].name;
+                                } else if (editing && editing[field.name] && typeof editing[field.name] === 'string') {
+                                    fileName = editing[field.name] || 'Archivo existente';
+                                }
+                                return (
+                                    <Box key={field.name} sx={{ flex: '1 1 300px', display: 'flex', flexDirection: 'column', gap: 1, width: '100%' }}>
+                                        <label style={{ fontWeight: 500, marginBottom: 4 }}>Archivo PDF</label>
+                                        <input
+                                            type="file"
+                                            name={field.name}
+                                            accept="application/pdf"
+                                            onChange={handleFileChange}
+                                            style={{ width: '100%' }}
+                                        />
+                                        {fileName && (
+                                            <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
+                                                {fileName}
+                                            </Typography>
+                                        )}
+                                        {editing && pdfId && editing && editing[field.name] ? (
+                                            <Button
+                                                variant="outlined"
+                                                color="secondary"
+                                                startIcon={<PdfIcon />}
+                                                href={`${API_URL}/${TABLE_CONFIG[selectedTable].endpoint}/${pdfId}/pdf`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                sx={{ mt: 1, width: 'fit-content' }}
+                                            >
+                                                Ver/Descargar PDF
+                                            </Button>
+                                        ) : null}
+                                    </Box>
+                                );
+                            }
+                            // ...resto de campos...
+                            return (
                                 selectedTable === 'docentes' && field.name === 'id_facultad' ? (
                                     <TextField
                                         select
@@ -503,8 +615,8 @@ export default function Docentes() {
                                         InputLabelProps={field.type === 'date' ? { shrink: true } : undefined}
                                     />
                                 )
-                            )
-                        ))}
+                            );
+                        })}
                     </Box>
                     {formError && <Alert severity="error" sx={{ mt: 2 }}>{formError}</Alert>}
                 </DialogContent>
