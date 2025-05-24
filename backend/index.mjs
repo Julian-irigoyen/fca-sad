@@ -76,16 +76,38 @@ app.post('/api/login', async (req, res) => {
       return res.status(401).json({ error: 'Usuario o contraseña incorrecta.' });
     }
     const user = rows[0];
-    // Use bcrypt for password check if hashes are stored
     const match = await bcrypt.compare(password, user.password_hash);
     if (!match) {
       return res.status(401).json({ error: 'Usuario o contraseña incorrecta.' });
     }
-    // Update last login
     await conn.execute('UPDATE usuarios SET ultimo_login = NOW() WHERE id_usuario = ?', [user.id_usuario]);
-    // Create JWT
-    const token = jwt.sign({ id: user.id_usuario, role: user.rol }, process.env.JWT_SECRET, { expiresIn: '1d' });
+    const token = jwt.sign({ id: user.id_usuario, role: user.rol }, process.env.JWT_SECRET, { expiresIn: '1h' });
     res.json({ token, role: user.rol });
+  } catch (err) {
+    res.status(500).json({ error: 'Error en el servidor.' });
+  }
+});
+
+app.post('/api/reset-password', async (req, res) => {
+  const { username, newPassword } = req.body;
+  if (!username || !newPassword) {
+    return res.status(400).json({ error: 'Faltan datos.' });
+  }
+  try {
+    const conn = await mysql.createConnection(dbConfig);
+    const [rows] = await conn.execute(
+      'SELECT * FROM usuarios WHERE id_empleado = ? OR email = ?',
+      [username, username]
+    );
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Usuario no encontrado.' });
+    }
+    const hash = await bcrypt.hash(newPassword, 10);
+    await conn.execute(
+      'UPDATE usuarios SET password_hash = ? WHERE id_usuario = ?',
+      [hash, rows[0].id_usuario]
+    );
+    res.json({ message: 'Contraseña actualizada.' });
   } catch (err) {
     res.status(500).json({ error: 'Error en el servidor.' });
   }

@@ -23,11 +23,10 @@ export default function Login() {
         setError(data.error || 'Error de inicio de sesión');
         return;
       }
-      // Redirect by role
-      if (data.role === 'admin') navigate('/admin');
-      else if (data.role === 'docente') navigate('/docente');
-      else if (data.role === 'coordinador') navigate('/coordinador');
-      else setError('Rol de usuario desconocido');
+      // Guardar JWT y rol en localStorage
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('role', data.role);
+      navigate('/dashboard');
     } catch (err) {
       setError('Error de red o del servidor');
     }
@@ -47,7 +46,7 @@ export default function Login() {
           <button type="submit" className="login-btn">Iniciar Sesión</button>
         </form>
         <div className="login-credentials">Usuario: fca.sad.workspace@gmail.com <br />Contraseña: Laticsfcauach2025*</div>
-        <div className="login-footer">¿Olvidó su contraseña? <a href="#" className="login-recover">Recuperar</a></div>
+        <div className="login-footer">¿Olvidó su contraseña? <a href="#" className="login-recover" onClick={e => { e.preventDefault(); navigate('/recuperar'); }}>Recuperar</a></div>
       </div>
     </div>
   );

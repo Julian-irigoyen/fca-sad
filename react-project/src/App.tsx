@@ -11,11 +11,13 @@ import MisDatos from './pages/MisDatos'
 import CerrarSesion from './pages/CerrarSesion'
 import Login from './pages/Login'
 import Layout from './Layout'
+import ResetPassword from './pages/ResetPassword'
 
 function App() {
   return (
     <Routes>
       <Route path="/" element={<Login />} />
+      <Route path="/recuperar" element={<ResetPassword />} />
       <Route element={<Layout />}>
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/docentes" element={<Docentes />} />

@@ -28,11 +28,22 @@ const menuItems = [
     { text: 'Cerrar Sesión', icon: <ExitToAppIcon />, path: '/logout' },
 ];
 
+const getMenuItemsByRole = (role: string | null) => {
+    if (role === 'admin' || role === 'coordinador') return menuItems;
+    if (role === 'docente') return menuItems.filter(item => ['Dashboard', 'Cumpleaños', 'Mis Datos', 'Cerrar Sesión'].includes(item.text));
+    return menuItems; // por defecto, mostrar todo
+};
+
 export default function Layout() {
     const [mobileOpen, setMobileOpen] = useState(false);
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const navigate = useNavigate();
     const [modalOpen, setModalOpen] = useState(false);
+    const [role, setRole] = useState<string | null>(null);
+
+    useEffect(() => {
+        setRole(localStorage.getItem('role'));
+    }, []);
 
     useEffect(() => {
         const checkModal = () => {
@@ -77,7 +88,7 @@ export default function Layout() {
             </Toolbar>
             <Divider sx={{ borderColor: 'rgba(255,255,255,0.2)' }} />
             <List sx={{ flexGrow: 1 }}>
-                {menuItems.map((item) => (
+                {getMenuItemsByRole(role).map((item) => (
                     <ListItem key={item.text} disablePadding sx={{ display: 'block' }}>
                         <ListItemButton
                             onClick={() => navigate(item.path)}
