@@ -448,7 +448,14 @@ export default function Docentes() {
                     headerName: f.label,
                     width: 160,
                     valueFormatter: f.type === 'date'
-                        ? (params: any) => (params && params.value ? String(params.value).slice(0, 10) : '')
+                        ? (params: any) => {
+                            let v = params && params.value;
+                            if (v === null || v === undefined) return '—';
+                            v = String(v).trim();
+                            if (!v || v === 'null' || v === 'undefined') return '—';
+                            if (/^\d{4}-\d{2}-\d{2}/.test(v)) return v.slice(0, 10);
+                            return v;
+                        }
                         : undefined,
                 };
             }),

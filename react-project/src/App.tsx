@@ -12,13 +12,14 @@ import CerrarSesion from './pages/CerrarSesion'
 import Login from './pages/Login'
 import Layout from './Layout'
 import ResetPassword from './pages/ResetPassword'
+import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
   return (
     <Routes>
       <Route path="/" element={<Login />} />
       <Route path="/recuperar" element={<ResetPassword />} />
-      <Route element={<Layout />}>
+      <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/docentes" element={<Docentes />} />
         <Route path="/cumpleanos" element={<Cumpleanos />} />

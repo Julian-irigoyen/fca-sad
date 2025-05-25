@@ -45,7 +45,6 @@ export default function Login() {
           {error && <div style={{ color: '#d32f2f', textAlign: 'center', marginBottom: 8 }}>{error}</div>}
           <button type="submit" className="login-btn">Iniciar Sesión</button>
         </form>
-        <div className="login-credentials">Usuario: fca.sad.workspace@gmail.com <br />Contraseña: Laticsfcauach2025*</div>
         <div className="login-footer">¿Olvidó su contraseña? <a href="#" className="login-recover" onClick={e => { e.preventDefault(); navigate('/recuperar'); }}>Recuperar</a></div>
       </div>
     </div>
