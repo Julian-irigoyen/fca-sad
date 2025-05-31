@@ -2,10 +2,10 @@ import { Navigate, Outlet, useLocation } from 'react-router-dom';
 
 const allowedRoutesByRole: Record<string, string[]> = {
   admin: [
-    '/dashboard', '/docentes', '/cumpleanos', '/configuracion', '/ayuda', '/equipo', '/mis-datos', '/logout'
+    '/dashboard', '/docentes', '/avisos', '/cumpleanos', '/configuracion', '/ayuda', '/equipo', '/mis-datos', '/logout'
   ],
   coordinador: [
-    '/dashboard', '/docentes', '/cumpleanos', '/configuracion', '/ayuda', '/equipo', '/mis-datos', '/logout'
+    '/dashboard', '/docentes', '/avisos', '/cumpleanos', '/configuracion', '/ayuda', '/equipo', '/mis-datos', '/logout'
   ],
   docente: [
     '/dashboard', '/cumpleanos', '/mis-datos', '/logout'

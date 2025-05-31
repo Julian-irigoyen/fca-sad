@@ -12,6 +12,7 @@ import certificadosSniiRoutes from './routes/certificados_snii.js';
 import certificadosProdepRoutes from './routes/certificados_prodep.js';
 import publicacionesDocentesRoutes from './routes/publicaciones_docentes.js';
 import usuariosRoutes from './routes/usuarios.js';
+import avisosRoutes, { startAvisosScheduler } from './routes/avisos.js';
 dotenv.config();
 
 function isValidEmail(email) {
@@ -60,6 +61,9 @@ const dbConfig = {
   database: process.env.DB_NAME,
 };
 const pool = mysql.createPool(dbConfig);
+
+// Iniciar el proceso automático de avisos programados
+startAvisosScheduler(pool);
 
 app.post('/api/login', async (req, res) => {
   const { username, password } = req.body;
@@ -380,6 +384,7 @@ app.use('/api/certificados_snii', certificadosSniiRoutes(pool));
 app.use('/api/certificados_prodep', certificadosProdepRoutes(pool));
 app.use('/api/publicaciones_docentes', publicacionesDocentesRoutes(pool));
 app.use('/api/usuarios', usuariosRoutes(pool));
+app.use('/api/avisos', avisosRoutes(pool));
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {

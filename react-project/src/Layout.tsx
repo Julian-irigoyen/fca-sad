@@ -10,6 +10,7 @@ import HelpIcon from '@mui/icons-material/Help';
 import GroupIcon from '@mui/icons-material/Group';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 import { useState, useEffect } from 'react';
 import logo from './assets/logo-blanco.png';
 import { createPortal } from 'react-dom';
@@ -18,14 +19,15 @@ const drawerWidth = 240;
 const collapsedWidth = 64;
 
 const menuItems = [
-    { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
-    { text: 'Docentes', icon: <PeopleIcon />, path: '/docentes' },
-    { text: 'Cumpleaños', icon: <CakeIcon />, path: '/cumpleanos' },
-    { text: 'Configuración', icon: <SettingsIcon />, path: '/configuracion' },
-    { text: 'Ayuda', icon: <HelpIcon />, path: '/ayuda' },
-    { text: 'Equipo', icon: <GroupIcon />, path: '/equipo' },
-    { text: 'Mis Datos', icon: <AccountCircleIcon />, path: '/mis-datos' },
-    { text: 'Cerrar Sesión', icon: <ExitToAppIcon />, path: '/logout' },
+    { text: 'Dashboard', icon: <DashboardIcon />, path: 'dashboard' },
+    { text: 'Docentes', icon: <PeopleIcon />, path: 'docentes' },
+    { text: 'Avisos', icon: <NotificationsActiveIcon />, path: 'avisos' },
+    { text: 'Cumpleaños', icon: <CakeIcon />, path: 'cumpleanos' },
+    { text: 'Configuración', icon: <SettingsIcon />, path: 'configuracion' },
+    { text: 'Ayuda', icon: <HelpIcon />, path: 'ayuda' },
+    { text: 'Equipo', icon: <GroupIcon />, path: 'equipo' },
+    { text: 'Mis Datos', icon: <AccountCircleIcon />, path: 'mis-datos' },
+    { text: 'Cerrar Sesión', icon: <ExitToAppIcon />, path: 'logout' },
 ];
 
 const getMenuItemsByRole = (role: string | null) => {

@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "@date-io/date-fns": "^3.2.1",
+    "@mui/x-date-pickers": "^8.4.0",
+    "date-fns": "^4.1.0",
+    "multer": "^2.0.0",
+    "nodemailer": "^7.0.3",
+    "react-quill": "^2.0.0"
+  }
+}
