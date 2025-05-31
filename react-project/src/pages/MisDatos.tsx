@@ -51,18 +51,23 @@ function useFacultades() {
 }
 
 export default function MisDatos() {
+    // Obtener datos del usuario logueado
+    const id_empleado = localStorage.getItem('id_empleado') || '';
+    const nombreUsuario = localStorage.getItem('nombre') || '';
+    const apellidoPaternoUsuario = localStorage.getItem('apellido_paterno') || '';
+    const apellidoMaternoUsuario = localStorage.getItem('apellido_materno') || '';
+    const correoUsuario = localStorage.getItem('email') || '';
     const facultades = useFacultades();
     const [tabValue, setTabValue] = useState(0);
     // Estados locales para formularios (mock, luego se conectarán a la API)
     const [personal, setPersonal] = useState({
-        id_empleado: '',
+        id_empleado: id_empleado,
         id_facultad: '',
-        nombre: '',
-        apellido_paterno: '',
-        apellido_materno: '',
+        nombre: nombreUsuario,
+        apellido_paterno: apellidoPaternoUsuario,
+        apellido_materno: apellidoMaternoUsuario,
         sexo: '',
         fecha_nacimiento: '',
-        correo: '',
         telefono: '',
         rfc: '',
         curp: '',
@@ -106,7 +111,7 @@ export default function MisDatos() {
 
     // Validación de campos requeridos para datos personales
     function validatePersonal(p: typeof personal) {
-        if (!p.id_empleado || !p.id_facultad || !p.nombre || !p.apellido_paterno || !p.apellido_materno || !p.sexo || !p.fecha_nacimiento || !p.correo || !p.fecha_ingreso) {
+        if (!p.id_empleado || !p.id_facultad || !p.nombre || !p.apellido_paterno || !p.apellido_materno || !p.sexo || !p.fecha_nacimiento || !p.fecha_ingreso) {
             return 'Por favor, completa todos los campos obligatorios marcados con *';
         }
         // Validaciones básicas de formato
@@ -114,7 +119,6 @@ export default function MisDatos() {
         if (!/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{2,}$/.test(p.apellido_paterno)) return 'El apellido paterno solo debe contener letras y espacios, mínimo 2 caracteres.';
         if (!/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{2,}$/.test(p.apellido_materno)) return 'El apellido materno solo debe contener letras y espacios, mínimo 2 caracteres.';
         if (!['M', 'F', 'Otro'].includes(p.sexo)) return 'El sexo seleccionado no es válido.';
-        if (!/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/.test(p.correo)) return 'El correo no tiene un formato válido.';
         return null;
     }
 
@@ -128,12 +132,26 @@ export default function MisDatos() {
             return;
         }
         try {
-            const res = await fetch('http://localhost:4000/api/docentes', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(personal),
-            });
-            const data = await res.json();
+            // Si ya existe el usuario, hacer PUT (update), si no, hacer POST (create)
+            const resCheck = await fetch(`http://localhost:4000/api/docentes?search=${id_empleado}`);
+            const dataCheck = await resCheck.json();
+            let res, data;
+            if (dataCheck.data && dataCheck.data.length > 0) {
+                // Ya existe, hacer update
+                res = await fetch(`http://localhost:4000/api/docentes/${id_empleado}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ...personal, id_empleado }),
+                });
+            } else {
+                // No existe, hacer create
+                res = await fetch('http://localhost:4000/api/docentes', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ...personal, id_empleado }),
+                });
+            }
+            data = await res.json();
             if (!res.ok) {
                 setPersonalError(data.error || 'Error al guardar los datos personales.');
             } else {
@@ -166,6 +184,70 @@ export default function MisDatos() {
         setImagenPreview(null);
         setPersonal(prev => ({ ...prev, imagen_perfil: '', imagen_perfil_file: null }));
     };
+
+    // Guardar domicilio
+    async function handleSaveDomicilio() {
+        try {
+            const res = await fetch('http://localhost:4000/api/domicilios_docentes', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ...domicilio, id_empleado }),
+            });
+            const data = await res.json();
+            // Manejar respuesta según éxito o error
+        } catch (err) {
+            // Manejar error
+        }
+    }
+
+    useEffect(() => {
+        if (!id_empleado) return;
+        // Datos personales
+        fetch(`http://localhost:4000/api/docentes?search=${id_empleado}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.data && data.data.length > 0) {
+                    setPersonal((prev: any) => ({ ...prev, ...data.data[0] }));
+                    if (data.data[0].imagen_perfil) setImagenPreview(data.data[0].imagen_perfil);
+                }
+            });
+        // Domicilio
+        fetch(`http://localhost:4000/api/domicilios_docentes/${id_empleado}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data && !data.error) setDomicilio((prev: any) => ({ ...prev, ...data }));
+            });
+        // Certificados académicos (solo uno, el más reciente)
+        fetch(`http://localhost:4000/api/certificados_academicos?page=1&pageSize=1&search=${id_empleado}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.data && data.data.length > 0) setCertificado((prev: any) => ({ ...prev, ...data.data[0] }));
+            });
+        // Idiomas (solo uno, el más reciente)
+        fetch(`http://localhost:4000/api/idiomas_docentes?page=1&pageSize=1&search=${id_empleado}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.data && data.data.length > 0) setIdioma((prev: any) => ({ ...prev, ...data.data[0] }));
+            });
+        // SNI (solo uno, el más reciente)
+        fetch(`http://localhost:4000/api/certificados_snii?page=1&pageSize=1&search=${id_empleado}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.data && data.data.length > 0) setSnii((prev: any) => ({ ...prev, ...data.data[0] }));
+            });
+        // PRODEP (solo uno, el más reciente)
+        fetch(`http://localhost:4000/api/certificados_prodep?page=1&pageSize=1&search=${id_empleado}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.data && data.data.length > 0) setProdep((prev: any) => ({ ...prev, ...data.data[0] }));
+            });
+        // Publicaciones (solo una, la más reciente)
+        fetch(`http://localhost:4000/api/publicaciones_docentes?page=1&pageSize=1&search=${id_empleado}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.data && data.data.length > 0) setPublicacion((prev: any) => ({ ...prev, ...data.data[0] }));
+            });
+    }, [id_empleado]);
 
     return (
         <Box sx={{ width: '100%', height: 'calc(100vh - 100px)', overflowY: 'auto', pr: 2 }}>
@@ -232,16 +314,6 @@ export default function MisDatos() {
             <TabPanel value={tabValue} index={0}>
                     <Grid container spacing={2}>
                     <Grid item xs={12} md={8} container spacing={2}>
-                        <Grid item xs={12} sm={3}>
-                            <TextField
-                                label="ID del Empleado"
-                                name="id_empleado"
-                                value={personal.id_empleado}
-                                onChange={handleChange(setPersonal)}
-                                fullWidth
-                                required
-                            />
-                        </Grid>
                         <Grid item xs={12} sm={5}>
                             <TextField
                                 select
@@ -259,18 +331,37 @@ export default function MisDatos() {
                                 ))}
                             </TextField>
                         </Grid>
-                        <Grid item xs={12} sm={4}><TextField label="Nombre" name="nombre" value={personal.nombre} onChange={handleChange(setPersonal)} fullWidth required /></Grid>
-                        <Grid item xs={12} sm={4}><TextField label="Apellido Paterno" name="apellido_paterno" value={personal.apellido_paterno} onChange={handleChange(setPersonal)} fullWidth required /></Grid>
-                        <Grid item xs={12} sm={4}><TextField label="Apellido Materno" name="apellido_materno" value={personal.apellido_materno} onChange={handleChange(setPersonal)} fullWidth required /></Grid>
+                        <Grid item xs={12} sm={4}>
+                            <TextField label="Nombre" name="nombre" value={personal.nombre} onChange={handleChange(setPersonal)} fullWidth required />
+                        </Grid>
+                        <Grid item xs={12} sm={4}>
+                            <TextField label="Apellido Paterno" name="apellido_paterno" value={personal.apellido_paterno} onChange={handleChange(setPersonal)} fullWidth required />
+                        </Grid>
+                        <Grid item xs={12} sm={4}>
+                            <TextField label="Apellido Materno" name="apellido_materno" value={personal.apellido_materno} onChange={handleChange(setPersonal)} fullWidth required />
+                        </Grid>
                         <Grid item xs={12} sm={3}><TextField select label="Sexo" name="sexo" value={personal.sexo} onChange={handleChange(setPersonal)} fullWidth required>{sexoEnum.map(opt => <MenuItem key={opt} value={opt}>{opt}</MenuItem>)}</TextField></Grid>
-                        <Grid item xs={12} sm={3}><TextField label="Fecha de Nacimiento" name="fecha_nacimiento" type="date" value={personal.fecha_nacimiento} onChange={handleChange(setPersonal)} fullWidth required InputLabelProps={{ shrink: true }} /></Grid>
-                        <Grid item xs={12} sm={3}><TextField label="Correo" name="correo" value={personal.correo} onChange={handleChange(setPersonal)} fullWidth required /></Grid>
-                        <Grid item xs={12} sm={3}><TextField label="Teléfono" name="telefono" value={personal.telefono} onChange={handleChange(setPersonal)} fullWidth /></Grid>
-                        <Grid item xs={12} sm={3}><TextField label="RFC" name="rfc" value={personal.rfc} onChange={handleChange(setPersonal)} fullWidth /></Grid>
-                        <Grid item xs={12} sm={3}><TextField label="CURP" name="curp" value={personal.curp} onChange={handleChange(setPersonal)} fullWidth /></Grid>
-                        <Grid item xs={12} sm={3}><TextField select label="Tipo Contratación" name="tipo_contratacion" value={personal.tipo_contratacion} onChange={handleChange(setPersonal)} fullWidth>{tipoContratacionEnum.map(opt => <MenuItem key={opt} value={opt}>{opt}</MenuItem>)}</TextField></Grid>
-                        <Grid item xs={12} sm={3}><TextField select label="Tipo Plaza" name="tipo_plaza" value={personal.tipo_plaza} onChange={handleChange(setPersonal)} fullWidth>{tipoPlazaEnum.map(opt => <MenuItem key={opt} value={opt}>{opt}</MenuItem>)}</TextField></Grid>
-                        <Grid item xs={12} sm={3}><TextField label="Fecha de Ingreso" name="fecha_ingreso" type="date" value={personal.fecha_ingreso} onChange={handleChange(setPersonal)} fullWidth required InputLabelProps={{ shrink: true }} /></Grid>
+                        <Grid item xs={12} sm={3}>
+                            <TextField label="Fecha de Nacimiento" name="fecha_nacimiento" type="date" value={personal.fecha_nacimiento ? personal.fecha_nacimiento.slice(0, 10) : ''} onChange={handleChange(setPersonal)} fullWidth required InputLabelProps={{ shrink: true }} />
+                        </Grid>
+                        <Grid item xs={12} sm={3}>
+                            <TextField label="Teléfono" name="telefono" value={personal.telefono} onChange={handleChange(setPersonal)} fullWidth />
+                        </Grid>
+                        <Grid item xs={12} sm={3}>
+                            <TextField label="RFC" name="rfc" value={personal.rfc} onChange={handleChange(setPersonal)} fullWidth />
+                        </Grid>
+                        <Grid item xs={12} sm={3}>
+                            <TextField label="CURP" name="curp" value={personal.curp} onChange={handleChange(setPersonal)} fullWidth />
+                        </Grid>
+                        <Grid item xs={12} sm={3}>
+                            <TextField select label="Tipo Contratación" name="tipo_contratacion" value={personal.tipo_contratacion} onChange={handleChange(setPersonal)} fullWidth>{tipoContratacionEnum.map(opt => <MenuItem key={opt} value={opt}>{opt}</MenuItem>)}</TextField>
+                        </Grid>
+                        <Grid item xs={12} sm={3}>
+                            <TextField select label="Tipo Plaza" name="tipo_plaza" value={personal.tipo_plaza} onChange={handleChange(setPersonal)} fullWidth>{tipoPlazaEnum.map(opt => <MenuItem key={opt} value={opt}>{opt}</MenuItem>)}</TextField>
+                        </Grid>
+                        <Grid item xs={12} sm={3}>
+                            <TextField label="Fecha de Ingreso" name="fecha_ingreso" type="date" value={personal.fecha_ingreso ? personal.fecha_ingreso.slice(0, 10) : ''} onChange={handleChange(setPersonal)} fullWidth required InputLabelProps={{ shrink: true }} />
+                        </Grid>
                     </Grid>
                     <Grid item xs={12} md={4}>
                         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100%' }}>
@@ -394,6 +485,7 @@ export default function MisDatos() {
                                 backgroundColor: '#5e1414',
                             },
                         }}
+                        onClick={handleSaveDomicilio}
                     >
                         Guardar Domicilio
                     </Button>

@@ -23,9 +23,15 @@ export default function Login() {
         setError(data.error || 'Error de inicio de sesión');
         return;
       }
-      // Guardar JWT y rol en localStorage
+      // Guardar JWT, rol y datos del usuario en localStorage
       localStorage.setItem('token', data.token);
       localStorage.setItem('role', data.role);
+      localStorage.setItem('id_usuario', data.id_usuario);
+      localStorage.setItem('id_empleado', data.id_empleado);
+      localStorage.setItem('email', data.email);
+      if (data.nombre) localStorage.setItem('nombre', data.nombre);
+      if (data.apellido_paterno) localStorage.setItem('apellido_paterno', data.apellido_paterno);
+      if (data.apellido_materno) localStorage.setItem('apellido_materno', data.apellido_materno);
       navigate('/dashboard');
     } catch (err) {
       setError('Error de red o del servidor');
