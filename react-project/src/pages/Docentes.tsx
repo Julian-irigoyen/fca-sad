@@ -466,7 +466,12 @@ export default function Docentes() {
                 sortable: false,
                 renderCell: (params: GridRenderCellParams) => (
                     <>
-                        <IconButton color="primary" onClick={() => handleEdit(params.row)}><EditIcon /></IconButton>
+                        <IconButton 
+                            onClick={() => handleEdit(params.row)}
+                            sx={{ color: 'primary.main', backgroundColor: 'transparent', '&:hover': { backgroundColor: 'rgba(134,29,29,0.08)' } }}
+                        >
+                            <EditIcon color="primary" />
+                        </IconButton>
                         <IconButton color="error" onClick={() => handleDelete(params.row)}><DeleteIcon /></IconButton>
                     </>
                 ),
@@ -484,7 +489,7 @@ export default function Docentes() {
                 onChange={(_, v) => { setSelectedTable(v); setPage(0); }}
                 variant="scrollable"
                 scrollButtons="auto"
-                sx={{ mb: 2 }}
+                sx={{ mb: 2, '& .MuiTab-root': { color: '#861d1d', fontWeight: 600 }, '& .Mui-selected': { color: '#861d1d !important' }, '& .MuiTabs-indicator': { backgroundColor: '#861d1d' } }}
             >
                 {TABLE_KEYS.map(key => (
                     <Tab key={key} value={key} label={toPrettyLabel(key)} />
@@ -492,9 +497,34 @@ export default function Docentes() {
             </Tabs>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                 <Typography variant="h4">{toPrettyLabel(selectedTable)}</Typography>
-                <Button variant="contained" color="primary" startIcon={<AddIcon />} onClick={() => { setForm({}); setEditing(null); setModalOpen(true); }}>
-                    Nuevo
-                </Button>
+                {selectedTable === 'docentes' ? (
+                    <Box sx={{ display: 'flex', gap: 1 }}>
+                        <Button 
+                            variant="contained" 
+                            startIcon={<AddIcon />} 
+                            onClick={() => { setForm({}); setEditing(null); setModalOpen(true); }}
+                            sx={{ backgroundColor: '#861d1d', color: '#fff', '&:hover': { backgroundColor: '#a12a2a' } }}
+                        >
+                            Nuevo
+                        </Button>
+                        <Button 
+                            variant="contained" 
+                            disabled
+                            sx={{ backgroundColor: '#861d1d', color: '#fff', '&:hover': { backgroundColor: '#a12a2a' } }}
+                        >
+                            Carga Masiva
+                        </Button>
+                    </Box>
+                ) : (
+                    <Button 
+                        variant="contained" 
+                        startIcon={<AddIcon />} 
+                        onClick={() => { setForm({}); setEditing(null); setModalOpen(true); }}
+                        sx={{ backgroundColor: '#861d1d', color: '#fff', '&:hover': { backgroundColor: '#a12a2a' } }}
+                    >
+                        Nuevo
+                    </Button>
+                )}
             </Box>
             <Box sx={{ display: 'flex', mb: 2 }}>
                 <TextField
@@ -629,7 +659,14 @@ export default function Docentes() {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleModalClose}>Cancelar</Button>
-                    <Button onClick={handleSave} variant="contained" color="primary" disabled={loading}>Guardar</Button>
+                    <Button 
+                        onClick={handleSave} 
+                        variant="contained" 
+                        disabled={loading}
+                        sx={{ backgroundColor: '#861d1d', color: '#fff', '&:hover': { backgroundColor: '#a12a2a' } }}
+                    >
+                        Guardar
+                    </Button>
                 </DialogActions>
             </Dialog>
             <Snackbar
