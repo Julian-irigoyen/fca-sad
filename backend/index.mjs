@@ -62,8 +62,11 @@ const dbConfig = {
 const pool = mysql.createPool(dbConfig);
 
 app.post('/api/login', async (req, res) => {
+  console.log('Petición recibida en /api/login');
   const { username, password } = req.body;
+  console.log('Body recibido:', req.body);
   if (!username || !password) {
+    console.log('Faltan datos: username o password');
     return res.status(400).json({ error: 'Missing username or password' });
   }
   try {
@@ -72,18 +75,23 @@ app.post('/api/login', async (req, res) => {
       'SELECT * FROM usuarios WHERE id_empleado = ? OR email = ?',
       [username, username]
     );
+    console.log('Resultado de la consulta usuarios:', rows);
     if (rows.length === 0) {
+      console.log('Usuario no encontrado');
       return res.status(401).json({ error: 'Usuario o contraseña incorrecta.' });
     }
     const user = rows[0];
     const match = await bcrypt.compare(password, user.password_hash);
     if (!match) {
+      console.log('Contraseña incorrecta');
       return res.status(401).json({ error: 'Usuario o contraseña incorrecta.' });
     }
     await conn.execute('UPDATE usuarios SET ultimo_login = NOW() WHERE id_usuario = ?', [user.id_usuario]);
     const token = jwt.sign({ id: user.id_usuario, role: user.rol }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    console.log('Login exitoso para usuario:', user.id_usuario);
     res.json({ token, role: user.rol });
   } catch (err) {
+    console.error('Error en /api/login:', err);
     res.status(500).json({ error: 'Error en el servidor.' });
   }
 });
@@ -372,6 +380,75 @@ app.get('/api/:table', async (req, res) => {
   }
 });
 
+app.get('/api/usuarios/total', async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT COUNT(*) as total FROM docentes');
+    res.json({ total: rows[0].total });
+  } catch (err) {
+    console.error('Error al contar docentes:', err);
+    res.status(500).json({ error: 'Error al contar docentes' });
+  }
+});
+
+app.get('/api/docentes/actividad', async (req, res) => {
+  try {
+    const now = new Date();
+    const year = now.getFullYear();
+    const meses = Array.from({ length: 12 }, (_, i) => {
+      const d = new Date(year, i, 1);
+      return {
+        mes: d.toLocaleString('es-MX', { month: 'short' }),
+        anio: year,
+        mesNum: i + 1
+      };
+    });
+
+    // Consulta para obtener todos los usuarios con su ultimo_login
+    const [usuarios] = await pool.query(`
+      SELECT id_usuario, ultimo_login FROM usuarios
+    `);
+
+    // Para cada mes, contar docentes únicos con login ese mes
+    const actividad = meses.map(({ mes, anio, mesNum }) => {
+      const total = usuarios.filter(u => {
+        if (!u.ultimo_login) return false;
+        const d = new Date(u.ultimo_login);
+        return d.getFullYear() === anio && (d.getMonth() + 1) === mesNum;
+      }).length;
+      return {
+        mes: mes.charAt(0).toUpperCase() + mes.slice(1),
+        total
+      };
+    });
+    res.json(actividad);
+  } catch (err) {
+    console.error('Error al obtener actividad de docentes:', err);
+    res.status(500).json({ error: 'Error al obtener actividad de docentes' });
+  }
+});
+
+app.get('/api/docentes/activos-por-hora', async (req, res) => {
+  try {
+    const [rows] = await pool.query(`
+      SELECT HOUR(ultimo_login) as hora, COUNT(*) as total
+      FROM usuarios
+      WHERE DATE(ultimo_login) = CURDATE()
+      GROUP BY hora
+      ORDER BY hora
+    `);
+    // Asegurarse de devolver un array con las 24 horas
+    const horas = Array.from({ length: 24 }, (_, i) => {
+      const found = rows.find(r => r.hora === i);
+      return { hora: i, total: found ? found.total : 0 };
+    });
+    res.json(horas);
+  } catch (err) {
+    console.error('Error al obtener docentes activos por hora:', err);
+    res.status(500).json({ error: 'Error al obtener docentes activos por hora' });
+  }
+});
+
+app.use('/api/usuarios', usuariosRoutes(pool));
 app.use('/api/facultades', facultadesRoutes(pool));
 app.use('/api/domicilios_docentes', domiciliosDocentesRoutes(pool));
 app.use('/api/certificados_academicos', certificadosAcademicosRoutes(pool));
@@ -379,7 +456,6 @@ app.use('/api/idiomas_docentes', idiomasDocentesRoutes(pool));
 app.use('/api/certificados_snii', certificadosSniiRoutes(pool));
 app.use('/api/certificados_prodep', certificadosProdepRoutes(pool));
 app.use('/api/publicaciones_docentes', publicacionesDocentesRoutes(pool));
-app.use('/api/usuarios', usuariosRoutes(pool));
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
