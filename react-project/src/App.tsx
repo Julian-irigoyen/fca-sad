@@ -13,6 +13,7 @@ import Login from './pages/Login'
 import Layout from './Layout'
 import ResetPassword from './pages/ResetPassword'
 import ProtectedRoute from './components/ProtectedRoute'
+import Avisos from './pages/Avisos'
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
         <Route path="/equipo" element={<Equipo />} />
         <Route path="/mis-datos" element={<MisDatos />} />
         <Route path="/logout" element={<CerrarSesion />} />
+        <Route path="/avisos" element={<Avisos />} />
       </Route>
     </Routes>
   )

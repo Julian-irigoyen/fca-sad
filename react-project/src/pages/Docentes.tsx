@@ -429,10 +429,14 @@ export default function Docentes() {
                             const hasFile = !!params.row[f.name];
                             return hasFile ? (
                                 <IconButton
-                                    onClick={() => handleEdit(params.row)}
-                                    sx={{ color: 'primary.main', backgroundColor: 'transparent', '&:hover': { backgroundColor: 'rgba(134,29,29,0.08)' } }}
+                                    color="primary"
+                                    component="a"
+                                    href={`${API_URL}/${TABLE_CONFIG[selectedTable].endpoint}/${pdfId}/pdf`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    title="Descargar PDF"
                                 >
-                                    <EditIcon color="primary" />
+                                    <DownloadIcon />
                                 </IconButton>
                             ) : null;
                         },
